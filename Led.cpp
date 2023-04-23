@@ -1,5 +1,8 @@
 #include "Led.h"
 
+uint8_t Led::led_intensity_level = 0;
+const uint8_t Led::INTENSITIES[NUMBER_OF_LEVELS] = {5, 20, 127};
+
 Led::Led(uint8_t pin, uint8_t cc)
 {
   pinMode(pin, OUTPUT);
@@ -9,7 +12,7 @@ Led::Led(uint8_t pin, uint8_t cc)
 
 void Led::on()
 {
-  analogWrite(led_pin, LED_INTENSITY);
+  analogWrite(led_pin, Led::INTENSITIES[led_intensity_level]);
 }
 
 void Led::off()
@@ -69,4 +72,14 @@ bool Led::flashUpdateTimes()
     return true;
   }
   return false;
+}
+
+uint8_t Led::getLedIntensityLevel()
+{
+  return Led::led_intensity_level + 1;
+}
+
+void Led::setLedIntensityLevel(uint8_t intensity_level)
+{
+  Led::led_intensity_level = intensity_level - 1;
 }

@@ -76,23 +76,45 @@ void Screen::writeSettingsTitle()
   screen->setTextColor(settings_color);
   screen->print("SETTINGS");
 
-  screen->drawLine(centered_x, 28, centered_x + width, 28, settings_color);
+  screen->drawLine(centered_x, 26, centered_x + width, 26, settings_color);
 }
 
-void Screen::showSettingOptions(const char **menu, const uint8_t number_of_options, uint8_t selected_option)
+void Screen::showSettingOptions(const char **menu, const uint8_t number_of_options, uint8_t selected_menu, uint8_t *option_values)
 {
-  uint8_t line_height = 26;
+  uint8_t line_height = settings_line_height;
   for (uint8_t i = 0; i < number_of_options; i++) {
     screen->setFont(settings_font);
     screen->setTextSize(settings_size);
-    screen->setCursor(0, line_height * (i + 2));
-    if (i == selected_option) {
-      screen->setTextColor(OLED_Color_Yellow);
+    screen->setCursor(0, line_height * (i + 2) + 6);
+    if (i == selected_menu) {
+      screen->setTextColor(settings_color_selected);
     } else {
       screen->setTextColor(settings_color);
     }
     screen->print(menu[i]);
+
+    screen->fillRect(settings_value_x, line_height * (i + 1) + 6, 127 - settings_value_x, line_height, settings_bg);
+
+    screen->setTextColor(settings_color);
+    screen->setCursor(settings_value_x, line_height * (i + 2) + 6);
+    screen->print(option_values[i]);
   }
+}
+
+void Screen::showSettingOptionEdition(const char **menu, const uint8_t number_of_options, uint8_t selected_menu, uint8_t option_value)
+{
+  uint8_t line_height = settings_line_height;
+  screen->setFont(settings_font);
+  screen->setTextSize(settings_size);
+  screen->setTextColor(settings_color);
+  screen->setCursor(0, line_height * (selected_menu + 2) + 6);
+  screen->print(menu[selected_menu]);
+
+  screen->fillRect(settings_value_x, line_height * (selected_menu + 1) + 6, 127 - settings_value_x, line_height, settings_bg);
+
+  screen->setCursor(settings_value_x, line_height * (selected_menu + 2) + 6);
+  screen->setTextColor(settings_color_selected);
+  screen->print(option_value);
 }
 
 uint16_t Screen::getTextWidth(const char* text)

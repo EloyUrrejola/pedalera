@@ -26,7 +26,8 @@ class Screen
     void writeChord(char* chord);
     void removeChord();
     void writeSettingsTitle();
-    void showSettingOptions(const char **menu, const uint8_t number_of_options, uint8_t selected_option);
+    void showSettingOptions(const char **menu, const uint8_t number_of_options, uint8_t selected_option, uint8_t *option_values);
+    void showSettingOptionEdition(const char **menu, const uint8_t number_of_options, uint8_t selected_menu, uint8_t option_value);
     void writeSongList(const char ** songs, int selected_song_index);
 
   private:
@@ -60,14 +61,19 @@ class Screen
     const uint8_t chord_size  = 1;
 
     const GFXfont *settings_font = &Open_Sans_Condensed_Bold_18;
+    const int settings_bg = OLED_Color_Black;
     const int settings_color = OLED_Color_Cyan;
-    const uint8_t settings_y     = 20;
+    const int settings_color_selected = OLED_Color_Yellow;
+    const uint8_t settings_y       = 20;
+    const uint8_t settings_value_x = 120;
+    const uint8_t settings_line_height = 22;
     const uint8_t settings_size  = 1;
 
     const GFXfont *settings_song_name_font = &Open_Sans_Condensed_Bold_18;
-    const int settings_song_name_color = 0xBDF7;
+    //const int settings_song_name_color = 0xBDF7;
+    const int settings_song_name_color = OLED_Color_Cyan;
+    const int settings_song_name_color_selected = OLED_Color_Yellow;
     const int settings_song_name_bg    = OLED_Color_Black;
-    const int settings_song_name_color_selected = OLED_Color_Cyan;
     const uint8_t settings_song_name_x      = 0;
     const uint8_t settings_song_name_height = 21;
     const uint8_t settings_song_name_size  = 1;

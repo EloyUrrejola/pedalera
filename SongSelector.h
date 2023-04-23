@@ -28,7 +28,7 @@ class SongSelector
     const uint8_t _cancel = 1;
     const uint8_t _pg_up = 2;
     const uint8_t _pd_dn = 3;
-    const uint8_t _save = 6;
+    const uint8_t _select = 6;
     const int UP = -1;
     const int DOWN = 1;
 

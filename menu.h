@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-extern const uint8_t NUMBER_OF_MENU_OPTIONS;
+const uint8_t NUMBER_OF_MENU_OPTIONS = 2;
 extern const char* MENU[];
 
 #endif

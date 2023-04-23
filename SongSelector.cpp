@@ -39,7 +39,7 @@ void SongSelector::songSelectorMode()
       if (action == _cancel) {
         settings_mode = false;
       }
-      if (action == _save) {
+      if (action == _select) {
         if (_temp_song_index != -1) {
           _current_song_index = _temp_song_index;
           _temp_song_index = -1;
