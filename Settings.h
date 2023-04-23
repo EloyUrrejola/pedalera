@@ -2,6 +2,7 @@
 #define SETTINGS_H
 
 #include <Arduino.h>
+#include "menu.h"
 #include "Screen.h"
 #include "Button.h"
 #include "Led.h"

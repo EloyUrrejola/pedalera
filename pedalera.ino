@@ -1,3 +1,6 @@
+#ifndef PEDALERA_INO
+#define PEDALERA_INO
+
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1351.h>
 #include <SPI.h>
@@ -321,3 +324,5 @@ void exitSongSelectorMode()
   screen.clean();
   screen.writeSong(current_song, current_part);
 }
+
+#endif
