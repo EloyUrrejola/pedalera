@@ -23,7 +23,8 @@ class Settings
 
     const int LED_FLASHING_ON  = 500;
     const int LED_FLASHING_OFF = 500;
-    const uint8_t _leds_index[3] = {10, 11, 13};
+    const uint8_t _number_of_leds_flashing = 1;
+    const uint8_t _leds_index[1] = {11};
     const uint8_t _exit = 1;
     const uint8_t _up = 2;
     const uint8_t _dn = 3;

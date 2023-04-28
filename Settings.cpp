@@ -12,7 +12,7 @@ void Settings::startSettingsMode()
 {
   _screen->clean();
   _screen->writeSettingsTitle();
-  for (uint8_t i = 0; i < 3; i++) {
+  for (uint8_t i = 0; i < _number_of_leds_flashing; i++) {
     _leds[_leds_index[i]]->flash(LED_FLASHING_ON, LED_FLASHING_OFF, -1);
   }
 }
@@ -23,7 +23,7 @@ void Settings::settingsMode()
   uint8_t selected_menu = 0;
   showMenuOptions(selected_menu);
   while (settings_mode) {
-    for (uint8_t i = 0; i < 3; i++) {
+    for (uint8_t i = 0; i < _number_of_leds_flashing; i++) {
       _leds[_leds_index[i]]->flashUpdate();
     }
     for (uint8_t i = 0; i < _number_of_buttons; i++) {
@@ -61,7 +61,7 @@ void Settings::selectOption(uint8_t selected_menu)
   uint8_t option_value = _option_values[selected_menu];
   showMenuOptionEdition(selected_menu, option_value);
   while (options_mode) {
-    for (uint8_t i = 0; i < 3; i++) {
+    for (uint8_t i = 0; i < _number_of_leds_flashing; i++) {
       _leds[_leds_index[i]]->flashUpdate();
     }
     for (uint8_t i = 0; i < _number_of_buttons; i++) {
@@ -114,7 +114,7 @@ void Settings::showMenuOptionEdition(uint8_t selected_menu, uint8_t option_value
 
 void Settings::exitSettingsMode()
 {
-  for (uint8_t i = 0; i < 3; i++) {
+  for (uint8_t i = 0; i < _number_of_leds_flashing; i++) {
     _leds[_leds_index[i]]->off();
   }
 }

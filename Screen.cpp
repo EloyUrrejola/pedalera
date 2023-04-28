@@ -93,11 +93,14 @@ void Screen::showSettingOptions(const char **menu, const uint8_t number_of_optio
     }
     screen->print(menu[i]);
 
-    screen->fillRect(settings_value_x, line_height * (i + 1) + 6, 127 - settings_value_x, line_height, settings_bg);
+    screen->fillRect(settings_value_x, line_height * (i + 1) + 6, 128 - settings_value_x, line_height, settings_bg);
 
+    char str_option_value[4];
+    sprintf(str_option_value, "%u", option_values[i]);
+    uint16_t width = getTextWidth(str_option_value);
+    screen->setCursor(getAlignRightX(width), line_height * (i + 2) + 6);
     screen->setTextColor(settings_color);
-    screen->setCursor(settings_value_x, line_height * (i + 2) + 6);
-    screen->print(option_values[i]);
+    screen->print(str_option_value);
   }
 }
 
@@ -110,11 +113,14 @@ void Screen::showSettingOptionEdition(const char **menu, const uint8_t number_of
   screen->setCursor(0, line_height * (selected_menu + 2) + 6);
   screen->print(menu[selected_menu]);
 
-  screen->fillRect(settings_value_x, line_height * (selected_menu + 1) + 6, 127 - settings_value_x, line_height, settings_bg);
+  screen->fillRect(settings_value_x, line_height * (selected_menu + 1) + 6, 128 - settings_value_x, line_height, settings_bg);
 
-  screen->setCursor(settings_value_x, line_height * (selected_menu + 2) + 6);
+  char str_option_value[4];
+  sprintf(str_option_value, "%u", option_value);
+  uint16_t width = getTextWidth(str_option_value);
+  screen->setCursor(getAlignRightX(width), line_height * (selected_menu + 2) + 6);
   screen->setTextColor(settings_color_selected);
-  screen->print(option_value);
+  screen->print(str_option_value);
 }
 
 uint16_t Screen::getTextWidth(const char* text)
@@ -129,6 +135,12 @@ int16_t Screen::getCenteredX(uint16_t width)
 {
   int16_t centered_x = (screen->width() / 2) - floor(width / 2);
   return centered_x > 0 ? centered_x : 0;
+}
+
+int16_t Screen::getAlignRightX(uint16_t width)
+{
+  int16_t align_right_x = screen->width() - width - 1;
+  return align_right_x > 0 ? align_right_x : 0;
 }
 
 void Screen::writeSongList(const char ** songs, int selected_song_index)
@@ -148,4 +160,33 @@ void Screen::writeSongList(const char ** songs, int selected_song_index)
     screen->setCursor(centered_x, settings_song_name_height * (i + 1));
     screen->print(songs[i]);
   }
+}
+
+void Screen::showTuningBackground()
+{
+  screen->fillRect(50, 0, tuner_sides_width, 128, tuner_color_sides);
+  screen->fillRect(50, 60, tuner_sides_width, 8, tuner_color_center);
+}
+
+void Screen::showNote(char *note)
+{
+  screen->fillRect(0, 28, 28, 18, OLED_Color_Black);
+
+  screen->setFont(tuner_chord_font);
+  screen->setTextSize(tuner_chord_font_size);
+  screen->setTextColor(chord_color);
+  screen->setCursor(0, 46);
+  screen->print(note);
+}
+
+void Screen::showTuning(uint8_t tuning, uint8_t last_tuning)
+{
+  if (last_tuning < 60 || last_tuning > 67) {
+    screen->fillRect(40, 127 - last_tuning - 1, tuner_bar_width, 2, OLED_Color_Black);
+    screen->fillRect(50, 127 - last_tuning - 1, tuner_sides_width, 2, tuner_color_sides);
+  } else {
+    screen->fillRect(40, 127 - last_tuning - 1, tuner_bar_width, 2, OLED_Color_Black);
+  }
+
+  screen->fillRect(40, 127 - tuning - 1, tuner_bar_width, 2, tuner_color_tuning);
 }

@@ -10,6 +10,7 @@
 #include "Screen.h"
 #include "Settings.h"
 #include "SongSelector.h"
+#include "Tuner.h"
 #include "songs.h"
 
 #define SCREEN_WIDTH  128
@@ -24,12 +25,14 @@ const uint8_t   OLED_pin_dc_rs          = 9;
 const uint8_t button_pins[]            = {27,30,31,32,16,17, 3, 2,  38,34,35,39,40,23,22,21,20,19};
 const uint8_t button_ccs[]             = {14,15,20,21,22,23,24,25,  26,27,28,29,30,31,85,86,87,88};
 const uint8_t momentary_ccs[]          = { 0, 0,89, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+const uint8_t button_push_actions[]    = { 0, 0, 0, 0, 3, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 const uint8_t button_release_actions[] = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 1, 2};
 const uint8_t SETTINGS_ACTION = 1;
 const uint8_t SONG_SELECTOR_ACTION = 2;
+const uint8_t TUNER_ACTION = 3;
 const uint8_t NUMBER_OF_BUTTONS = sizeof(button_pins) / sizeof(button_pins[0]);
 
-const uint8_t settings_buttons[]       = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 5, 6, 3, 0, 0, 4, 1, 2};
+const uint8_t settings_buttons[]       = { 0, 0, 0, 0, 7, 0, 0, 0,   0, 0, 5, 6, 3, 0, 0, 4, 1, 2};
 
 const uint8_t led_pins[]    = { 7, 4, 5, 6,24,25,28,29,  33,36,37,14,18,15};
 const uint8_t led_ccs[]     = {14,15,20,21,22,23,24,25,  26,27,28,29,85,86};
@@ -39,13 +42,17 @@ Button *buttons[NUMBER_OF_BUTTONS];
 Led *leds[NUMBER_OF_LEDS];
 const int LED_FLASHING_ON  = 500;
 const int LED_FLASHING_OFF = 500;
-const int LED_FLASHIN_TIMES = 3;
+const int LED_FLASHIN_TIMES = 1;
 
 uint8_t action;
 
 uint8_t  current_song_index = 0;
 char current_song[21];
 char current_part[21];
+
+const uint8_t leds_midi_channel = 2;
+const uint8_t button_mode_midi_channel = 2;
+const uint8_t tuner_midi_channel = 3;
 
 Adafruit_SSD1351 adafruit = Adafruit_SSD1351(
   SCREEN_WIDTH,
@@ -61,7 +68,7 @@ void setup()
 {
   Serial.begin(9600);
   for (uint8_t i = 0; i < NUMBER_OF_BUTTONS; i++) {
-    buttons[i] = new Button(button_pins[i], button_ccs[i], button_release_actions[i], settings_buttons[i]);
+    buttons[i] = new Button(button_pins[i], button_ccs[i], button_push_actions[i], button_release_actions[i], settings_buttons[i]);
   }
   for (uint8_t i = 0; i < NUMBER_OF_LEDS; i++) {
     leds[i] = new Led(led_pins[i], led_ccs[i]);
@@ -89,11 +96,16 @@ void loop()
 {
   for (uint8_t i = 0; i < NUMBER_OF_BUTTONS; i++) {
     action = buttons[i]->changed();
-    if (action == SETTINGS_ACTION) {
-      settingsMode();
-    }
-    if (action == SONG_SELECTOR_ACTION) {
-      songSelectorMode();
+    if (action > 0) {
+      if (action == SETTINGS_ACTION) {
+        settingsMode();
+      }
+      if (action == SONG_SELECTOR_ACTION) {
+        songSelectorMode();
+      }
+      if (action == TUNER_ACTION) {
+        tunerMode();
+      }
     }
   }
   usbMIDI.read();
@@ -129,12 +141,15 @@ bool any_led_flashing(bool leds_flashing[])
 
 void receivedMidiMessage(uint8_t channel, uint8_t control, uint8_t value)
 {
-  check_leds(control, value);
-  check_button_modes(control, value);
+  check_leds(channel, control, value);
+  check_button_modes(channel, control, value);
 }
 
-void check_leds(uint8_t control, uint8_t value)
+void check_leds(uint8_t channel, uint8_t control, uint8_t value)
 {
+  if (channel != leds_midi_channel) {
+    return;
+  }
   int led_index = getLedIndexByCc(control);
   if (led_index > -1) {
     if (value == 127) {
@@ -145,8 +160,11 @@ void check_leds(uint8_t control, uint8_t value)
   }
 }
 
-void check_button_modes(uint8_t control, uint8_t value)
+void check_button_modes(uint8_t channel, uint8_t control, uint8_t value)
 {
+  if (channel != button_mode_midi_channel) {
+    return;
+  }
   int button_index = getButtonIndexByMomentaryCc(control);
   if (button_index > -1) {
     bool momentary_state = (value == 127) ? true : false;
@@ -320,6 +338,21 @@ void songSelectorMode()
 }
 
 void exitSongSelectorMode()
+{
+  screen.clean();
+  screen.writeSong(current_song, current_part);
+}
+
+void tunerMode()
+{
+  Tuner tuner(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS, tuner_midi_channel);
+  tuner.startTunerMode();
+  tuner.tunerMode();
+  tuner.exitTunerMode();
+  exitTunerMode();
+}
+
+void exitTunerMode()
 {
   screen.clean();
   screen.writeSong(current_song, current_part);

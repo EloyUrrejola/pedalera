@@ -29,6 +29,9 @@ class Screen
     void showSettingOptions(const char **menu, const uint8_t number_of_options, uint8_t selected_option, uint8_t *option_values);
     void showSettingOptionEdition(const char **menu, const uint8_t number_of_options, uint8_t selected_menu, uint8_t option_value);
     void writeSongList(const char ** songs, int selected_song_index);
+    void showNote(char *note);
+    void showTuning(uint8_t tuning, uint8_t last_tuning);
+    void showTuningBackground();
 
   private:
     const int OLED_Color_Black        = 0x0000;
@@ -65,7 +68,7 @@ class Screen
     const int settings_color = OLED_Color_Cyan;
     const int settings_color_selected = OLED_Color_Yellow;
     const uint8_t settings_y       = 20;
-    const uint8_t settings_value_x = 120;
+    const uint8_t settings_value_x = 110;
     const uint8_t settings_line_height = 22;
     const uint8_t settings_size  = 1;
 
@@ -78,9 +81,18 @@ class Screen
     const uint8_t settings_song_name_height = 21;
     const uint8_t settings_song_name_size  = 1;
 
+    const GFXfont *tuner_chord_font = &Roboto_Condensed_24;
+    const int tuner_chord_font_size = 1;
+    const int tuner_color_sides = OLED_Color_Blue;
+    const int tuner_color_tuning = OLED_Color_White;
+    const int tuner_color_center = OLED_Color_Black;
+    const uint8_t tuner_sides_width = 67;
+    const uint8_t tuner_bar_width = 87;
+
     Adafruit_SSD1351 *screen;
     uint16_t getTextWidth(const char* text);
     int16_t getCenteredX(uint16_t width);
+    int16_t getAlignRightX(uint16_t width);
 };
 
 #endif

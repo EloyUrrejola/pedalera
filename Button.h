@@ -8,7 +8,7 @@
 class Button
 {
   public:
-    Button(uint8_t, uint8_t, uint8_t, uint8_t);
+    Button(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
     void changeMomentary(bool state);
     uint8_t changed();
     uint8_t settingsChanged();
@@ -24,7 +24,8 @@ class Button
     uint8_t button_pin;
     uint8_t button_cc;
     bool button_momentary;
-    uint8_t button_action;
+    uint8_t button_push_action;
+    uint8_t button_release_action;
     uint8_t button_settings_action;
     bool button_pressed;
     unsigned long button_time_now;
