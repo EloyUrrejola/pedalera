@@ -25,7 +25,7 @@ class Screen
     void writeSong(char* song, char* part);
     void writeChord(char* chord);
     void removeChord();
-    void writeSettingsTitle();
+    void writeSettingsTitle(char *title);
     void showSettingOptions(const char **menu, const uint8_t number_of_options, uint8_t selected_option, uint8_t *option_values);
     void showSettingOptionEdition(const char **menu, const uint8_t number_of_options, uint8_t selected_menu, uint8_t option_value);
     void writeSongList(const char ** songs, int selected_song_index);
@@ -43,9 +43,10 @@ class Screen
     const int OLED_Color_Yellow       = 0xFFE0;
     const int OLED_Color_White        = 0xFFFF;
 
+    const int SCREEN_BG_COLOR         = OLED_Color_Black;
+
     const GFXfont *song_name_font = &Open_Sans_Condensed_Bold_18;
     const int  song_name_color = OLED_Color_White;
-    const int  song_name_bg    = OLED_Color_Black;
     const uint8_t song_name_x     = 0;
     const uint8_t song_name_y     = 20;
     const uint8_t song_name_size  = 1;
@@ -58,13 +59,11 @@ class Screen
 
     const GFXfont *chord_font = &FreeSansBold18pt7b;
     const int  chord_color = 0x8FCF;
-    const int  chord_bg    = OLED_Color_Black;
     const uint8_t chord_x     = 0;
     const uint8_t chord_y     = 100;
     const uint8_t chord_size  = 1;
 
     const GFXfont *settings_font = &Open_Sans_Condensed_Bold_18;
-    const int settings_bg = OLED_Color_Black;
     const int settings_color = OLED_Color_Cyan;
     const int settings_color_selected = OLED_Color_Yellow;
     const uint8_t settings_y       = 20;
@@ -76,7 +75,6 @@ class Screen
     //const int settings_song_name_color = 0xBDF7;
     const int settings_song_name_color = OLED_Color_Cyan;
     const int settings_song_name_color_selected = OLED_Color_Yellow;
-    const int settings_song_name_bg    = OLED_Color_Black;
     const uint8_t settings_song_name_x      = 0;
     const uint8_t settings_song_name_height = 21;
     const uint8_t settings_song_name_size  = 1;
@@ -90,9 +88,10 @@ class Screen
     const uint8_t tuner_bar_width = 87;
 
     Adafruit_SSD1351 *screen;
+    int16_t  getCenteredXFromText(const char* text);
+    int16_t  getCenteredXFromWidth(uint16_t width);
     uint16_t getTextWidth(const char* text);
-    int16_t getCenteredX(uint16_t width);
-    int16_t getAlignRightX(uint16_t width);
+    int16_t  getAlignRightX(uint16_t width);
 };
 
 #endif

@@ -18,9 +18,9 @@
 
 //const uint8_t   OLED_pin_scl_sck        = 13;
 //const uint8_t   OLED_pin_sda_mosi       = 11;
-const uint8_t   OLED_pin_cs_ss          = 10;
-const uint8_t   OLED_pin_res_rst        = 8;
-const uint8_t   OLED_pin_dc_rs          = 9;
+const uint8_t  OLED_pin_cs_ss          = 10;
+const uint8_t  OLED_pin_res_rst        = 8;
+const uint8_t  OLED_pin_dc_rs          = 9;
 
 const uint8_t button_pins[]            = {27,30,31,32,16,17, 3, 2,  38,34,35,39,40,23,22,21,20,19};
 const uint8_t button_ccs[]             = {14,15,20,21,22,23,24,25,  26,27,28,29,30,31,85,86,87,88};
@@ -42,7 +42,7 @@ Button *buttons[NUMBER_OF_BUTTONS];
 Led *leds[NUMBER_OF_LEDS];
 const int LED_FLASHING_ON  = 500;
 const int LED_FLASHING_OFF = 500;
-const int LED_FLASHIN_TIMES = 1;
+const int LED_FLASHING_TIMES = 1;
 
 uint8_t action;
 
@@ -87,7 +87,7 @@ void start()
   strcpy(current_song, "");
   strcpy(current_part, "Starting...");
   screen.writeSong(current_song, current_part);
-  flash_leds(LED_FLASHIN_TIMES);
+  flash_leds(LED_FLASHING_TIMES);
   strcpy(current_part, "READY");
   screen.writeSong(current_song, current_part);
 }

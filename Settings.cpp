@@ -11,7 +11,8 @@ Settings::Settings(Screen *screen, Button **buttons, const uint8_t number_of_but
 void Settings::startSettingsMode()
 {
   _screen->clean();
-  _screen->writeSettingsTitle();
+  char title[] = "SETTINGS";
+  _screen->writeSettingsTitle(title);
   for (uint8_t i = 0; i < _number_of_leds_flashing; i++) {
     _leds[_leds_index[i]]->flash(LED_FLASHING_ON, LED_FLASHING_OFF, -1);
   }

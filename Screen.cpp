@@ -17,14 +17,13 @@ void Screen::clean()
 
 void Screen::writeSong(char* song, char* part)
 {
-  screen->fillRect(0, 0, 128, 56, song_name_bg);
+  screen->fillRect(0, 0, 128, 56, SCREEN_BG_COLOR);
 
   screen->setFont(song_name_font);
   screen->setTextSize(song_name_size);
   screen->setTextWrap(false);
 
-  uint16_t width = getTextWidth(song);
-  int16_t centered_x = getCenteredX(width);
+  int16_t centered_x = getCenteredXFromText(song);
 
   screen->setTextColor(song_name_color);
   screen->setCursor(centered_x, song_name_y);
@@ -33,8 +32,7 @@ void Screen::writeSong(char* song, char* part)
   screen->setFont(song_part_font);
   screen->setTextSize(song_part_size);
 
-  width = getTextWidth(part);
-  centered_x = getCenteredX(width);
+  centered_x = getCenteredXFromText(part);
 
   screen->setTextColor(song_part_color);
   screen->setCursor(centered_x, song_part_y);
@@ -43,13 +41,12 @@ void Screen::writeSong(char* song, char* part)
 
 void Screen::writeChord(char* chord)
 {
-  screen->fillRect(0, 71, 128, 50, chord_bg);
+  screen->fillRect(0, 71, 128, 50, SCREEN_BG_COLOR);
 
   screen->setFont(chord_font);
   screen->setTextSize(chord_size);
 
-  uint16_t width = getTextWidth(chord);
-  int16_t centered_x = getCenteredX(width);
+  int16_t centered_x = getCenteredXFromText(chord);
 
   screen->setTextColor(chord_color);
   screen->setCursor(centered_x, chord_y);
@@ -58,23 +55,22 @@ void Screen::writeChord(char* chord)
 
 void Screen::removeChord()
 {
-  screen->fillRect(0, 71, 128, 50, chord_bg);
+  screen->fillRect(0, 71, 128, 50, SCREEN_BG_COLOR);
 }
 
-void Screen::writeSettingsTitle()
+void Screen::writeSettingsTitle(char *title)
 {
-  screen->fillRect(0, 0, 128, 50, song_name_bg);
+  screen->fillRect(0, 0, 128, 50, SCREEN_BG_COLOR);
 
   screen->setFont(settings_font);
   screen->setTextSize(settings_size);
-  char text[] = "SETTINGS";
 
-  uint16_t width = getTextWidth(text);
-  int16_t centered_x = getCenteredX(width);
+  uint16_t width = getTextWidth(title);
+  int16_t centered_x = getCenteredXFromWidth(width);
 
   screen->setCursor(centered_x, settings_y);
   screen->setTextColor(settings_color);
-  screen->print("SETTINGS");
+  screen->print(title);
 
   screen->drawLine(centered_x, 26, centered_x + width, 26, settings_color);
 }
@@ -93,7 +89,7 @@ void Screen::showSettingOptions(const char **menu, const uint8_t number_of_optio
     }
     screen->print(menu[i]);
 
-    screen->fillRect(settings_value_x, line_height * (i + 1) + 6, 128 - settings_value_x, line_height, settings_bg);
+    screen->fillRect(settings_value_x, line_height * (i + 1) + 6, 128 - settings_value_x, line_height, SCREEN_BG_COLOR);
 
     char str_option_value[4];
     sprintf(str_option_value, "%u", option_values[i]);
@@ -113,7 +109,7 @@ void Screen::showSettingOptionEdition(const char **menu, const uint8_t number_of
   screen->setCursor(0, line_height * (selected_menu + 2) + 6);
   screen->print(menu[selected_menu]);
 
-  screen->fillRect(settings_value_x, line_height * (selected_menu + 1) + 6, 128 - settings_value_x, line_height, settings_bg);
+  screen->fillRect(settings_value_x, line_height * (selected_menu + 1) + 6, 128 - settings_value_x, line_height, SCREEN_BG_COLOR);
 
   char str_option_value[4];
   sprintf(str_option_value, "%u", option_value);
@@ -123,18 +119,25 @@ void Screen::showSettingOptionEdition(const char **menu, const uint8_t number_of
   screen->print(str_option_value);
 }
 
+int16_t Screen::getCenteredXFromText(const char* text)
+{
+  uint16_t width = getTextWidth(text);
+  int16_t centered_x = (screen->width() / 2) - floor(width / 2);
+  return centered_x > 0 ? centered_x : 0;
+}
+
+int16_t Screen::getCenteredXFromWidth(uint16_t width)
+{
+  int16_t centered_x = (screen->width() / 2) - floor(width / 2);
+  return centered_x > 0 ? centered_x : 0;
+}
+
 uint16_t Screen::getTextWidth(const char* text)
 {
   int16_t x, y;
   uint16_t w, h;
   screen->getTextBounds(text, 0, 0, &x, &y, &w, &h);
   return w;
-}
-
-int16_t Screen::getCenteredX(uint16_t width)
-{
-  int16_t centered_x = (screen->width() / 2) - floor(width / 2);
-  return centered_x > 0 ? centered_x : 0;
 }
 
 int16_t Screen::getAlignRightX(uint16_t width)
@@ -150,8 +153,7 @@ void Screen::writeSongList(const char ** songs, int selected_song_index)
     screen->setFont(settings_song_name_font);
     screen->setTextSize(settings_song_name_size);
     screen->setTextWrap(false);
-    uint16_t width = getTextWidth(songs[i]);
-    int16_t centered_x = getCenteredX(width);
+    int16_t centered_x = getCenteredXFromText(songs[i]);
     if (i == selected_song_index) {
       screen->setTextColor(settings_song_name_color_selected);
     } else {
