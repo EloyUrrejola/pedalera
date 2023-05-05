@@ -75,7 +75,7 @@ void Screen::writeSettingsTitle(char *title)
   screen->drawLine(centered_x, 26, centered_x + width, 26, settings_color);
 }
 
-void Screen::showSettingOptions(const char **menu, const uint8_t number_of_options, uint8_t selected_menu, uint8_t *option_values)
+void Screen::showSettingOptions(char **menu, uint8_t number_of_options, uint8_t selected_menu, uint8_t *option_values)
 {
   uint8_t line_height = settings_line_height;
   for (uint8_t i = 0; i < number_of_options; i++) {
@@ -100,7 +100,7 @@ void Screen::showSettingOptions(const char **menu, const uint8_t number_of_optio
   }
 }
 
-void Screen::showSettingOptionEdition(const char **menu, const uint8_t number_of_options, uint8_t selected_menu, uint8_t option_value)
+void Screen::showSettingOptionEdition(char **menu, uint8_t number_of_options, uint8_t selected_menu, uint8_t option_value)
 {
   uint8_t line_height = settings_line_height;
   screen->setFont(settings_font);

@@ -6,10 +6,11 @@ const char* MENU[] = {
 };
 
 const char* AUDIO_SUBMENU[] = {
-  "Bass Left",
-  "Bass Right",
+  "Stereo/Sep",
   "MIDI Left",
-  "MIDI Rigth"
+  "MIDI Rigth",
+  "Bass Left",
+  "Bass Right"
 };
 
 const char** SUBMENUS[] = {

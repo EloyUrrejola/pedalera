@@ -53,6 +53,7 @@ char current_part[21];
 const uint8_t leds_midi_channel = 2;
 const uint8_t button_mode_midi_channel = 2;
 const uint8_t tuner_midi_channel = 3;
+const uint8_t settings_channel = 4;
 
 Adafruit_SSD1351 adafruit = Adafruit_SSD1351(
   SCREEN_WIDTH,
@@ -143,6 +144,7 @@ void receivedMidiMessage(uint8_t channel, uint8_t control, uint8_t value)
 {
   check_leds(channel, control, value);
   check_button_modes(channel, control, value);
+  check_settings(channel, control, value);
 }
 
 void check_leds(uint8_t channel, uint8_t control, uint8_t value)
@@ -190,6 +192,13 @@ int getButtonIndexByMomentaryCc(uint8_t cc)
     }
   }
   return -1;
+}
+
+void check_settings(uint8_t channel, uint8_t control, uint8_t value)
+{
+  if (channel != settings_channel) {
+    return;
+  }
 }
 
 void receivedSysEx(uint8_t *data, unsigned int length)
