@@ -24,7 +24,8 @@ const uint8_t  OLED_pin_dc_rs          = 9;
 
 const uint8_t button_pins[]            = {27,30,31,32,16,17, 3, 2,  38,34,35,39,40,23,22,21,20,19};
 const uint8_t button_ccs[]             = {14,15,20,21,22,23,24,25,  26,27,28,29,30,31,85,86,87,88};
-const uint8_t momentary_ccs[]          = { 0, 0,89, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+const uint8_t button_momentary[]       = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0,89, 0, 0, 0, 0, 0, 0};
+const uint8_t button_momentary_ccs[]   = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0,20, 0, 0, 0, 0, 0, 0};
 const uint8_t button_push_actions[]    = { 0, 0, 0, 0, 3, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 const uint8_t button_release_actions[] = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 1, 2};
 const uint8_t SETTINGS_ACTION = 1;
@@ -42,7 +43,7 @@ Button *buttons[NUMBER_OF_BUTTONS];
 Led *leds[NUMBER_OF_LEDS];
 const int LED_FLASHING_ON  = 500;
 const int LED_FLASHING_OFF = 500;
-const int LED_FLASHING_TIMES = 1;
+const int LED_FLASHING_TIMES = 3;
 
 uint8_t action;
 
@@ -170,7 +171,7 @@ void check_button_modes(uint8_t channel, uint8_t control, uint8_t value)
   int button_index = getButtonIndexByMomentaryCc(control);
   if (button_index > -1) {
     bool momentary_state = (value == 127) ? true : false;
-    buttons[button_index]->changeMomentary(momentary_state);
+    buttons[button_index]->changeMomentary(momentary_state, button_momentary_ccs[button_index]);
   }
 }
 
@@ -187,7 +188,7 @@ int getLedIndexByCc(uint8_t cc)
 int getButtonIndexByMomentaryCc(uint8_t cc)
 {
   for (uint8_t i = 0; i < NUMBER_OF_BUTTONS; i++) {
-    if (cc == momentary_ccs[i]) {
+    if (cc == button_momentary[i]) {
       return i;
     }
   }
@@ -199,6 +200,7 @@ void check_settings(uint8_t channel, uint8_t control, uint8_t value)
   if (channel != settings_channel) {
     return;
   }
+  Settings::setSettingValue(control, value);
 }
 
 void receivedSysEx(uint8_t *data, unsigned int length)

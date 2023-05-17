@@ -75,7 +75,7 @@ void Screen::writeSettingsTitle(char *title)
   screen->drawLine(centered_x, 26, centered_x + width, 26, settings_color);
 }
 
-void Screen::showSettingOptions(char **menu, uint8_t number_of_options, uint8_t selected_menu, uint8_t *option_values)
+void Screen::showSettingOptions(char **menu, uint8_t number_of_options, uint8_t selected_menu, uint8_t *option_values, bool *options_with_values)
 {
   uint8_t line_height = settings_line_height;
   for (uint8_t i = 0; i < number_of_options; i++) {
@@ -88,15 +88,16 @@ void Screen::showSettingOptions(char **menu, uint8_t number_of_options, uint8_t 
       screen->setTextColor(settings_color);
     }
     screen->print(menu[i]);
-
-    screen->fillRect(settings_value_x, line_height * (i + 1) + 6, 128 - settings_value_x, line_height, SCREEN_BG_COLOR);
-
-    char str_option_value[4];
-    sprintf(str_option_value, "%u", option_values[i]);
-    uint16_t width = getTextWidth(str_option_value);
-    screen->setCursor(getAlignRightX(width), line_height * (i + 2) + 6);
-    screen->setTextColor(settings_color);
-    screen->print(str_option_value);
+    
+    if (options_with_values[i]) {
+      screen->fillRect(settings_value_x, line_height * (i + 1) + 6, 128 - settings_value_x, line_height, SCREEN_BG_COLOR);
+      char str_option_value[4];
+      sprintf(str_option_value, "%u", option_values[i]);
+      uint16_t width = getTextWidth(str_option_value);
+      screen->setCursor(getAlignRightX(width), line_height * (i + 2) + 6);
+      screen->setTextColor(settings_color);
+      screen->print(str_option_value);
+    }
   }
 }
 

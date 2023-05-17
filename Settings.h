@@ -11,6 +11,7 @@ class Settings
 {
   public:
     Settings(Screen *screen, Button **buttons, const uint8_t number_of_buttons, Led **leds, const uint8_t number_of_leds);
+    static void setSettingValue(uint8_t cc, uint8_t value);
     void startSettingsMode();
     void settingsMode();
     void exitSettingsMode();
@@ -41,42 +42,37 @@ class Settings
     const uint8_t audio_midi_right_option = 2;
     const uint8_t audio_bass_left_option = 3;
     const uint8_t audio_bass_right_option = 4;
-    const uint8_t _menu_min_options[NUMBER_OF_MENU_OPTIONS] = {1, 0};
-    const uint8_t _menu_max_options[NUMBER_OF_MENU_OPTIONS] = {3, 10};
-    uint8_t _menu_option_values[NUMBER_OF_MENU_OPTIONS]     = {Led::getLedIntensityLevel(), 0};
-    const uint8_t _menu_option_ccs[NUMBER_OF_MENU_OPTIONS]  = {25, 0};
 
-    const uint8_t _audio_min_options[5] = {0,0,0,0,0};
-    const uint8_t _audio_max_options[5] = {1,10,10,10,10};
-    uint8_t _audio_values[5] = {0,0,10,0,10};
+    static const uint8_t _menu_min_options[NUMBER_OF_MENU_OPTIONS];
+    static const uint8_t _menu_max_options[NUMBER_OF_MENU_OPTIONS];
+    static const uint8_t _audio_min_options[5];
+    static const uint8_t _audio_max_options[5];
+    static const uint8_t *_submenu_min_options[NUMBER_OF_MENU_OPTIONS];
+    static const uint8_t *_submenu_max_options[NUMBER_OF_MENU_OPTIONS];
 
-    const uint8_t _audio_ccs[5] = {20, 21, 22, 23, 24};
-    const uint8_t* _submenu_option_ccs[2] = {nullptr, _audio_ccs};
+    static const uint8_t _menu_option_ccs[NUMBER_OF_MENU_OPTIONS];
+    static const uint8_t _audio_ccs[5];
+    static const uint8_t *_submenu_option_ccs[NUMBER_OF_MENU_OPTIONS];
 
-    uint8_t *_submenu_option_values[2] = {
-      NULL,
-      _audio_values
-    };
-    const uint8_t *_submenu_min_options[2] = {
-      NULL,
-      _audio_min_options
-    };
-    const uint8_t *_submenu_max_options[2] = {
-      NULL,
-      _audio_max_options
-    };
+    static uint8_t _menu_option_values[NUMBER_OF_MENU_OPTIONS];
+    static uint8_t _audio_values[5];
+    static uint8_t *_submenu_option_values[NUMBER_OF_MENU_OPTIONS];
+
     const uint8_t _settings_midi_chanel = 4;
 
     void startFlashingLeds();
     void updateFlashingLeds();
     bool isMenuOptionChange(uint8_t action, uint8_t number_of_options, uint8_t selected_menu);
-    void changeOption(uint8_t action, char **menu_options, uint8_t number_of_options, uint8_t &selected_option, uint8_t *option_values);
+    void changeOption(uint8_t action, char **menu_options, uint8_t number_of_options, uint8_t &selected_option, uint8_t *option_values, uint8_t *max_values);
     void selectSubmenu(char **&menu_options, uint8_t &number_of_options, uint8_t &selected_option, uint8_t *&option_values, uint8_t *&min_values, uint8_t *&max_values, uint8_t *&option_ccs);
     void exitOption(uint8_t action, char **&menu_options, uint8_t &number_of_options, uint8_t &selected_option, uint8_t &level, bool &settings_mode, uint8_t *&option_values, uint8_t *&min_values, uint8_t *&max_values, uint8_t *&option_ccs);
-    void editOption(char **menu_options, uint8_t number_of_options, uint8_t selected_option, uint8_t level, uint8_t option_value, uint8_t min_value, uint8_t max_value, uint8_t option_cc);
+    void editOption(char **menu_options, uint8_t number_of_options, uint8_t selected_option, uint8_t level, uint8_t *option_values, uint8_t min_value, uint8_t max_value, uint8_t option_cc);
     bool isValueChange(uint8_t action, uint8_t selected_option, uint8_t option_value, uint8_t min_value, uint8_t max_value);
-    void showMenuOptions(char **menu_options, uint8_t number_of_options, uint8_t selected_option, uint8_t *option_values);
+    void showMenuOptions(char **menu_options, uint8_t number_of_options, uint8_t selected_option, uint8_t *option_values, uint8_t *max_values);
     void showMenuOptionEdition(char **menu_options, uint8_t number_of_options, uint8_t selected_option, uint8_t option_value);
+    static uint8_t getPedalboardOptionValue(uint8_t value, uint8_t max_value);
+    uint8_t getGpOptionValue(uint8_t value, uint8_t max_value);
+    void getOptionsWithValues(uint8_t *max_values, uint8_t number_of_options, bool *options_with_values);
 };
 
 #endif

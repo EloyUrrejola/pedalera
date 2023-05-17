@@ -48,14 +48,19 @@ uint8_t Button::changed()
 
 void Button::sendControlChange()
 {
-  if (button_cc > 0) {
-    usbMIDI.sendControlChange(button_cc, top_velocity, channel);
+  uint8_t cc = button_cc;
+  if (button_momentary) {
+    cc = button_momentary_cc;
+  }
+  if (cc > 0) {
+    usbMIDI.sendControlChange(cc, top_velocity, channel);
   }
 }
 
-void Button::changeMomentary(bool state)
+void Button::changeMomentary(bool state, uint8_t momentary_cc)
 {
   button_momentary = state;
+  button_momentary_cc = momentary_cc;
 }
 
 uint8_t Button::settingsChanged()

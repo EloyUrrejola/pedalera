@@ -9,7 +9,7 @@ class Button
 {
   public:
     Button(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
-    void changeMomentary(bool state);
+    void changeMomentary(bool state, uint8_t momentary_cc);
     uint8_t changed();
     uint8_t settingsChanged();
     void sendControlChange();
@@ -30,6 +30,7 @@ class Button
     bool button_pressed;
     unsigned long button_time_now;
     unsigned long button_time_start;
+    uint8_t button_momentary_cc;
     Bounce *button_debouncer;
 };
 
