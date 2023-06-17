@@ -1,6 +1,6 @@
 #include "Led.h"
 
-uint8_t Led::led_intensity_level = 0;
+uint8_t Led::led_intensity_level = 1;
 const uint8_t Led::INTENSITIES[NUMBER_OF_LEVELS] = {5, 20, 127};
 
 Led::Led(uint8_t pin, uint8_t cc)

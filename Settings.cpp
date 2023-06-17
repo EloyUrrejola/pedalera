@@ -230,7 +230,6 @@ void Settings::getOptionsWithValues(uint8_t *max_values, uint8_t number_of_optio
 {
   for (uint8_t i = 0; i < number_of_options; i++) {
     options_with_values[i] = max_values[i] > 0;
-    Serial.println(options_with_values[i]);
   }
 }
 
