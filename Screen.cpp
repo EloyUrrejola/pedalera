@@ -193,3 +193,52 @@ void Screen::showTuning(uint8_t tuning, uint8_t last_tuning)
 
   screen->fillRect(40, 127 - tuning - 1, tuner_bar_width, 2, tuner_color_tuning);
 }
+
+void Screen::showClockBackground()
+{
+  clean();
+}
+
+void Screen::showClock(int hours, int minutes, int seconds, int day, int month, int year)
+{
+  clean();
+  screen->setFont(clock_hour_font);
+  screen->setTextSize(clock_font_size);
+  screen->setTextColor(clock_hour_color);
+  screen->setCursor(20, 65);
+  char hour_txt[6];
+  hour_txt[0] = '0' + ((hours / 10) % 10);
+  hour_txt[1] = '0' + (hours % 10);
+  hour_txt[2] = ':';
+  hour_txt[3] = '0' + ((minutes / 10) % 10);
+  hour_txt[4] = '0' + (minutes % 10);
+  hour_txt[5] = 0;
+  screen->print(hour_txt);
+
+  screen->setFont(clock_date_font);
+  screen->setTextSize(clock_font_size);
+  screen->setTextColor(clock_date_color);
+  screen->setCursor(18, 90);
+  char date_txt[11];
+  date_txt[0] = '0' + ((day / 10) % 10);
+  date_txt[1] = '0' + (day % 10);
+  date_txt[2] = '/';
+  date_txt[3] = '0' + ((month / 10) % 10);
+  date_txt[4] = '0' + (month % 10);
+  date_txt[5] = '/';
+  date_txt[6] = '0' + ((year / 1000) % 10);
+  date_txt[7] = '0' + ((year / 100) % 10);
+  date_txt[8] = '0' + ((year / 10) % 10);
+  date_txt[9] = '0' + (year % 10);
+  date_txt[10] = 0;
+  screen->print(date_txt);
+}
+
+
+
+
+
+
+
+
+

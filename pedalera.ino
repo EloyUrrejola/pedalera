@@ -11,6 +11,7 @@
 #include "Settings.h"
 #include "SongSelector.h"
 #include "Tuner.h"
+#include "Clock.h"
 #include "songs.h"
 
 #define SCREEN_WIDTH  128
@@ -27,13 +28,14 @@ const uint8_t button_ccs[]             = {14,15,20,21,22,23,24,25,  26,27,28,29,
 const uint8_t button_momentary[]       = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0,89, 0, 0, 0, 0, 0, 0};
 const uint8_t button_momentary_ccs[]   = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0,20, 0, 0, 0, 0, 0, 0};
 const uint8_t button_push_actions[]    = { 0, 0, 0, 0, 3, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-const uint8_t button_release_actions[] = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 1, 2};
+const uint8_t button_release_actions[] = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 4, 0, 0, 1, 2};
 const uint8_t SETTINGS_ACTION = 1;
 const uint8_t SONG_SELECTOR_ACTION = 2;
 const uint8_t TUNER_ACTION = 3;
+const uint8_t CLOCK_ACTION = 4;
 const uint8_t NUMBER_OF_BUTTONS = sizeof(button_pins) / sizeof(button_pins[0]);
 
-const uint8_t settings_buttons[]       = { 0, 0, 0, 0, 7, 0, 0, 0,   0, 0, 5, 6, 3, 0, 0, 4, 1, 2};
+const uint8_t settings_buttons[]       = { 0, 0, 0, 0, 7, 0, 0, 0,   0, 0, 5, 6, 3, 8, 0, 4, 1, 2};
 
 const uint8_t led_pins[]    = { 7, 4, 5, 6,24,25,28,29,  33,36,37,14,18,15};
 const uint8_t led_ccs[]     = {14,15,20,21,22,23,24,25,  26,27,28,29,85,86};
@@ -69,6 +71,7 @@ Screen screen(&adafruit);
 void setup()
 {
   Serial.begin(9600);
+
   for (uint8_t i = 0; i < NUMBER_OF_BUTTONS; i++) {
     buttons[i] = new Button(button_pins[i], button_ccs[i], button_push_actions[i], button_release_actions[i], settings_buttons[i]);
   }
@@ -79,19 +82,17 @@ void setup()
   usbMIDI.setHandleControlChange(receivedMidiMessage);
   usbMIDI.setHandleSystemExclusive(receivedSysEx);
 
+  strcpy(current_song, "");
+  strcpy(current_part, "READY");
+
   screen.begin();
-  screen.clean();
   start();
 }
 
 void start()
 {
-  strcpy(current_song, "");
-  strcpy(current_part, "Starting...");
-  screen.writeSong(current_song, current_part);
   flash_leds(LED_FLASHING_TIMES);
-  strcpy(current_part, "READY");
-  screen.writeSong(current_song, current_part);
+  showDefaultScren();
 }
 
 void loop()
@@ -108,9 +109,19 @@ void loop()
       if (action == TUNER_ACTION) {
         tunerMode();
       }
+      if (action == CLOCK_ACTION) {
+        showClock(2);
+        exitClockMode();
+      }
     }
   }
   usbMIDI.read();
+}
+
+void showDefaultScren()
+{
+  screen.clean();
+  screen.writeSong(current_song, current_part);
 }
 
 void flash_leds(int times)
@@ -224,6 +235,10 @@ void receivedSysEx(uint8_t *data, unsigned int length)
     }
     delete[] chord;
   }
+  if (strcmp(type, "time") == 0) {
+    int current_time = getDatetime(message);
+    Clock::setDatetime(current_time);
+  }
   free(message);
 }
 
@@ -324,6 +339,17 @@ char* getMessageChord(char* message)
   return chord;
 }
 
+int getDatetime(char* message)
+{
+  int datetime = 0;
+  char* delimiter = strchr(message, ':');
+  if (delimiter != NULL) {
+    char* datetime_str = delimiter + 1;
+    datetime = atoi(datetime_str);
+  }
+  return datetime;
+}
+
 void settingsMode()
 {
   Settings settings(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS);
@@ -336,7 +362,7 @@ void settingsMode()
 void exitSettingsMode()
 {
   screen.clean();
-  screen.writeSong(current_song, current_part);
+  showDefaultScren();
 }
 
 void songSelectorMode()
@@ -351,7 +377,7 @@ void songSelectorMode()
 void exitSongSelectorMode()
 {
   screen.clean();
-  screen.writeSong(current_song, current_part);
+  showDefaultScren();
 }
 
 void tunerMode()
@@ -366,7 +392,20 @@ void tunerMode()
 void exitTunerMode()
 {
   screen.clean();
-  screen.writeSong(current_song, current_part);
+  showDefaultScren();
+}
+
+void showClock(uint8_t wait_seconds)
+{
+  Clock clock(&screen, buttons, NUMBER_OF_BUTTONS);
+  clock.startClockMode();
+  clock.clockMode(wait_seconds);
+}
+
+void exitClockMode()
+{
+  screen.clean();
+  showDefaultScren();
 }
 
 #endif

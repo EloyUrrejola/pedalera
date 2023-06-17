@@ -33,6 +33,8 @@ class Screen
     void showNote(char *note);
     void showTuning(uint8_t tuning, uint8_t last_tuning);
     void showTuningBackground();
+    void showClockBackground();
+    void showClock(int hours, int minutes, int seconds, int day, int month, int year);
 
   private:
     const int OLED_Color_Black        = 0x0000;
@@ -87,6 +89,12 @@ class Screen
     const int tuner_color_center = OLED_Color_Black;
     const uint8_t tuner_sides_width = 67;
     const uint8_t tuner_bar_width = 87;
+
+    const GFXfont *clock_hour_font = &FreeSansBold18pt7b;
+    const int clock_font_size = 1;
+    const int clock_hour_color = OLED_Color_Cyan;
+    const GFXfont *clock_date_font = &FreeSans9pt7b;
+    const int clock_date_color = OLED_Color_Yellow;
 
     Adafruit_SSD1351 *screen;
     int16_t  getCenteredXFromText(const char* text);
