@@ -9,7 +9,7 @@
 class SongSelector
 {
   public:
-    SongSelector(Screen *screen, Button **buttons, const uint8_t number_of_buttons, Led **leds, const uint8_t number_of_leds, const char **songs, const uint8_t number_of_songs);
+    SongSelector(Screen *screen, Button **buttons, const uint8_t number_of_buttons, Led **leds, const uint8_t number_of_leds, char **songs, uint8_t number_of_songs);
     void startSongSelectorMode(uint8_t current_song_index);
     void songSelectorMode();
     void exitSongSelectorMode();
@@ -19,8 +19,8 @@ class SongSelector
     Led    **_leds;
     const uint8_t _number_of_buttons;
     const uint8_t _number_of_leds;
-    const char **_songs;
-    const uint8_t _number_of_songs;
+    char **_songs;
+    uint8_t _number_of_songs;
 
     const int LED_FLASHING_ON  = 500;
     const int LED_FLASHING_OFF = 500;
@@ -36,7 +36,7 @@ class SongSelector
     uint8_t _current_song_index;
 
     void showSongSelectorPanel(uint8_t song_index, int direction);
-    const char** getRangeSongs(uint8_t first_song);
+    void getRangeSongs(uint8_t first_song, uint8_t number_of_visible_songs, const char** songs);
 };
 
 #endif

@@ -29,7 +29,7 @@ class Screen
     void writeSettingsTitle(char *title);
     void showSettingOptions(char **menu, uint8_t number_of_options, uint8_t selected_option, uint8_t *option_values, bool *options_with_values);
     void showSettingOptionEdition(char **menu, uint8_t number_of_options, uint8_t selected_menu, uint8_t option_value);
-    void writeSongList(const char ** songs, int selected_song_index);
+    void writeSongList(const char ** songs, int selected_song_index, uint8_t number_of_songs);
     void showNote(char *note);
     void showTuning(uint8_t tuning, uint8_t last_tuning);
     void showTuningBackground();

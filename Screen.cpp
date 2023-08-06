@@ -147,10 +147,10 @@ int16_t Screen::getAlignRightX(uint16_t width)
   return align_right_x > 0 ? align_right_x : 0;
 }
 
-void Screen::writeSongList(const char ** songs, int selected_song_index)
+void Screen::writeSongList(const char ** songs, int selected_song_index, uint8_t number_of_songs)
 {
   clean();
-  for (uint8_t i = 0; i < 6; i ++) {
+  for (uint8_t i = 0; i < number_of_songs; i ++) {
     screen->setFont(settings_song_name_font);
     screen->setTextSize(settings_song_name_size);
     screen->setTextWrap(false);

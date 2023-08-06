@@ -12,7 +12,6 @@
 #include "SongSelector.h"
 #include "Tuner.h"
 #include "Clock.h"
-#include "songs.h"
 
 #define SCREEN_WIDTH  128
 #define SCREEN_HEIGHT 128
@@ -48,6 +47,10 @@ const int LED_FLASHING_OFF = 500;
 const int LED_FLASHING_TIMES = 3;
 
 uint8_t action;
+
+const int MAX_SONGS = 30;
+char* song_list[MAX_SONGS];
+uint8_t number_of_songs = 0;
 
 uint8_t  current_song_index = 0;
 char current_song[21];
@@ -216,10 +219,15 @@ void check_settings(uint8_t channel, uint8_t control, uint8_t value)
 
 void receivedSysEx(uint8_t *data, unsigned int length)
 {
-  char *message = getMessage(data, length);
+  char message[length - 1];
+  getMessage(data, length, message);
   replaceTildeVowels(message);
-  char type[6];
+  char type[6] = "";
   getMessageType(message, type);
+  if (strcmp(type, "list") == 0) {
+    getSongList(message);
+    //Serial.println(song_list_string);
+  }
   if (strcmp(type, "song") == 0) {
     current_song_index = getMessageSongIndex(message);
     getCurrentSongName(current_song_index);
@@ -239,24 +247,42 @@ void receivedSysEx(uint8_t *data, unsigned int length)
     int current_time = getDatetime(message);
     Clock::setDatetime(current_time);
   }
-  free(message);
+}
+
+void getSongList(char *message)
+{
+  char *delimiter = strchr(message, ':');
+  if (delimiter != NULL) {
+    delimiter++;
+    char *song_list_string = (char*)malloc(strlen(delimiter) - 1);
+    strcpy(song_list_string, delimiter);
+
+    const char* song_delimiter = "|";
+    char* song_ptr = strtok(song_list_string, song_delimiter);
+    int song_index = 0;
+    while (song_ptr != NULL && song_index < MAX_SONGS) {
+      song_list[song_index] = (char*)malloc(strlen(song_ptr) + 1); // Agregar 1 para el carácter nulo '\0'
+      strcpy(song_list[song_index], song_ptr);
+      song_ptr = strtok(NULL, song_delimiter);
+      song_index++;
+    }
+    number_of_songs = song_index;
+
+    free(song_list_string);
+  }
 }
 
 void getCurrentSongName(int song_index)
 {
-  strcpy(current_song, SONGS[song_index]);
+  strcpy(current_song, song_list[song_index]);
 }
 
-char * getMessage(uint8_t *data, unsigned int length)
+void getMessage(uint8_t *data, unsigned int length, char *message)
 {
-  uint8_t message[length - 2];
-  for (unsigned int i = 1; i < (length - 1); i++) {
-    message[i - 1] = data[i];
+  for (unsigned int i = 0; i < (length - 2); i++) {
+    message[i] = data[i + 1];
   }
-  char* charMessage = (char*)malloc(sizeof(char) * (length-1));
-  memcpy(charMessage, message, length-2);
-  charMessage[length-2] = '\0';
-  return charMessage;
+  message[length - 2] = '\0';
 }
 
 void replaceTildeVowels(char *message) {
@@ -367,7 +393,7 @@ void exitSettingsMode()
 
 void songSelectorMode()
 {
-  SongSelector songSelector(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS, SONGS, NUMBER_OF_SONGS);
+  SongSelector songSelector(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS, song_list, number_of_songs);
   songSelector.startSongSelectorMode(current_song_index);
   songSelector.songSelectorMode();
   songSelector.exitSongSelectorMode();
