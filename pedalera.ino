@@ -23,7 +23,9 @@ const uint8_t  OLED_pin_res_rst        = 8;
 const uint8_t  OLED_pin_dc_rs          = 9;
 
 const uint8_t button_pins[]            = {27,30,31,32,16,17, 3, 2,  38,34,35,39,40,23,22,21,20,19};
-const uint8_t button_ccs[]             = {14,15,20,21,22,23,24,25,  26,27,28,29,30,31,85,86,87,88};
+const uint8_t button_ccs[]             = {14,15,20,21,22,23,24,25,  26,27,28,29,30,31,85,86,87, 0};
+// CCs al soltar el botón
+const uint8_t button_release_ccs[]     = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0,88};
 // CCs recibidos para activar momentary_ccs, por ej. guitar MOD (89)
 const uint8_t button_momentary[]       = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0,89, 0, 0, 0, 0, 0, 0};
 // Acción activada con button_momentary, por ej. guitar/bass (20)
@@ -31,7 +33,7 @@ const uint8_t button_momentary_ccs[]   = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0,20,
 // Tunner: tuner_mode (3)
 const uint8_t button_push_actions[]    = { 0, 0, 0, 0, 3, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 // Acciones pasado un intervalo de tiempo (300 ms)
-const uint8_t button_release_actions[] = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 4, 0, 0, 1, 2};
+const uint8_t button_hold_actions[]    = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 4, 0, 0, 1, 2};
 // Botones usados para los settings
 const uint8_t settings_buttons[]       = { 0, 0, 0, 0, 7, 0, 0, 0,   0, 0, 5, 6, 3, 8, 0, 4, 1, 2};
 const uint8_t SETTINGS_ACTION = 1;
@@ -80,7 +82,7 @@ void setup()
   Serial.begin(9600);
 
   for (uint8_t i = 0; i < NUMBER_OF_BUTTONS; i++) {
-    buttons[i] = new Button(button_pins[i], button_ccs[i], button_push_actions[i], button_release_actions[i], settings_buttons[i]);
+    buttons[i] = new Button(button_pins[i], button_ccs[i], button_release_ccs[i], button_push_actions[i], button_hold_actions[i], settings_buttons[i]);
   }
   for (uint8_t i = 0; i < NUMBER_OF_LEDS; i++) {
     leds[i] = new Led(led_pins[i], led_ccs[i]);

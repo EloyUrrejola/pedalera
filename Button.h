@@ -8,11 +8,12 @@
 class Button
 {
   public:
-    Button(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
+    Button(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
     void changeMomentary(bool state, uint8_t momentary_cc);
     uint8_t changed();
     uint8_t settingsChanged();
-    void sendControlChange();
+    void sendControlChange(uint8_t cc);
+    uint8_t getButtonCc();
     
   private:
     const uint8_t channel = 1;
@@ -23,9 +24,10 @@ class Button
 
     uint8_t button_pin;
     uint8_t button_cc;
+    uint8_t button_release_cc;
     bool button_momentary;
     uint8_t button_push_action;
-    uint8_t button_release_action;
+    uint8_t button_hold_action;
     uint8_t button_settings_action;
     bool button_pressed;
     unsigned long button_time_now;

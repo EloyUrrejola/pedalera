@@ -29,7 +29,7 @@ void Tuner::tunerMode()
     for (uint8_t i = 0; i < _number_of_buttons; i++) {
       uint8_t action = _buttons[i]->settingsChanged();
       if (action == _exit) {
-        _buttons[i]->sendControlChange();
+        _buttons[i]->sendControlChange(_buttons[i]->getButtonCc());
         tuner_mode = false;
       }
     }
