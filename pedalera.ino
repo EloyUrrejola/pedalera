@@ -24,17 +24,21 @@ const uint8_t  OLED_pin_dc_rs          = 9;
 
 const uint8_t button_pins[]            = {27,30,31,32,16,17, 3, 2,  38,34,35,39,40,23,22,21,20,19};
 const uint8_t button_ccs[]             = {14,15,20,21,22,23,24,25,  26,27,28,29,30,31,85,86,87,88};
+// CCs recibidos para activar momentary_ccs, por ej. guitar MOD (89)
 const uint8_t button_momentary[]       = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0,89, 0, 0, 0, 0, 0, 0};
+// Acción activada con button_momentary, por ej. guitar/bass (20)
 const uint8_t button_momentary_ccs[]   = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0,20, 0, 0, 0, 0, 0, 0};
+// Tunner: tuner_mode (3)
 const uint8_t button_push_actions[]    = { 0, 0, 0, 0, 3, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+// Acciones pasado un intervalo de tiempo (300 ms)
 const uint8_t button_release_actions[] = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 4, 0, 0, 1, 2};
+// Botones usados para los settings
+const uint8_t settings_buttons[]       = { 0, 0, 0, 0, 7, 0, 0, 0,   0, 0, 5, 6, 3, 8, 0, 4, 1, 2};
 const uint8_t SETTINGS_ACTION = 1;
 const uint8_t SONG_SELECTOR_ACTION = 2;
 const uint8_t TUNER_ACTION = 3;
 const uint8_t CLOCK_ACTION = 4;
 const uint8_t NUMBER_OF_BUTTONS = sizeof(button_pins) / sizeof(button_pins[0]);
-
-const uint8_t settings_buttons[]       = { 0, 0, 0, 0, 7, 0, 0, 0,   0, 0, 5, 6, 3, 8, 0, 4, 1, 2};
 
 const uint8_t led_pins[]    = { 7, 4, 5, 6,24,25,28,29,  33,36,37,14,18,15};
 const uint8_t led_ccs[]     = {14,15,20,21,22,23,24,25,  26,27,28,29,85,86};
@@ -94,8 +98,9 @@ void setup()
 
 void start()
 {
-  flash_leds(LED_FLASHING_TIMES);
   showDefaultScren();
+  flash_leds(LED_FLASHING_TIMES);
+  requestSetlist();
 }
 
 void loop()
@@ -226,7 +231,6 @@ void receivedSysEx(uint8_t *data, unsigned int length)
   getMessageType(message, type);
   if (strcmp(type, "list") == 0) {
     getSongList(message);
-    //Serial.println(song_list_string);
   }
   if (strcmp(type, "song") == 0) {
     current_song_index = getMessageSongIndex(message);
@@ -268,13 +272,23 @@ void getSongList(char *message)
     }
     number_of_songs = song_index;
 
+    if (number_of_songs > 0) {
+      screen.writeSong((char*)"SETLIST", (char*)"LOADED");
+      delay(3000);
+      showDefaultScren();
+    }
+
     free(song_list_string);
   }
 }
 
 void getCurrentSongName(int song_index)
 {
-  strcpy(current_song, song_list[song_index]);
+  if (song_index < number_of_songs) {
+    strcpy(current_song, song_list[song_index]);
+  } else {
+    requestSetlist();
+  }
 }
 
 void getMessage(uint8_t *data, unsigned int length, char *message)
@@ -365,6 +379,11 @@ char* getMessageChord(char* message)
   return chord;
 }
 
+void requestSetlist()
+{
+  usbMIDI.sendControlChange(25, 127, 4);
+}
+
 int getDatetime(char* message)
 {
   int datetime = 0;
@@ -393,11 +412,15 @@ void exitSettingsMode()
 
 void songSelectorMode()
 {
-  SongSelector songSelector(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS, song_list, number_of_songs);
-  songSelector.startSongSelectorMode(current_song_index);
-  songSelector.songSelectorMode();
-  songSelector.exitSongSelectorMode();
-  exitSongSelectorMode();
+  if (number_of_songs > 0) {
+    SongSelector songSelector(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS, song_list, number_of_songs);
+    songSelector.startSongSelectorMode(current_song_index);
+    songSelector.songSelectorMode();
+    songSelector.exitSongSelectorMode();
+    exitSongSelectorMode();
+  } else {
+    requestSetlist();
+  }
 }
 
 void exitSongSelectorMode()

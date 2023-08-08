@@ -35,7 +35,7 @@ void Clock::clockMode(uint8_t wait_seconds)
   unsigned long start_time = millis();
   showClock();
   while (clock_mode) {
-    if (millis() - start_time >= wait_seconds * 1000) {
+    if (millis() - start_time >= wait_seconds * RELEASE_TIME) {
       clock_mode = false;
     }
   }

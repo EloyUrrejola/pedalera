@@ -19,6 +19,7 @@ class Clock
     Screen *_screen;
     Button **_buttons;
     const uint8_t _number_of_buttons;
+    const uint16_t RELEASE_TIME = 1000;
 
     const uint8_t _exit = 8;
     int minutes = -1;
