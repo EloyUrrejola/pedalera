@@ -25,7 +25,11 @@ uint8_t Button::changed()
 {
   button_debouncer->update();
   if (button_debouncer->fell()) {
-    sendControlChange(button_cc);
+    if (button_momentary) {
+      sendControlChange(button_momentary_cc);
+    } else {
+      sendControlChange(button_cc);
+    }
     if (button_push_action > 0) {
       return button_push_action;
     }
@@ -35,9 +39,10 @@ uint8_t Button::changed()
     }
   }
   if (button_debouncer->rose()) {
-    sendControlChange(button_release_cc);
     if (button_momentary) {
       sendControlChange(button_momentary_cc);
+    } else {
+      sendControlChange(button_release_cc);
     }
     if (button_hold_action > 0) {
       button_pressed = false;
