@@ -303,14 +303,19 @@ void getMessage(uint8_t *data, unsigned int length, char *message)
 
 void replaceTildeVowels(char *message) {
   int length = strlen(message);
+  char atilde = 'a';//char(160)
+  char etilde = 'e';//char(130)
+  char itilde = 'i';//char(161)
+  char otilde = 'o';//char(162)
+  char utilde = 'u';//char(163)
   for (int i = 0; i < length; i++) {
     if (message[i] == '&') {
       switch (message[i+1]) {
-        case 'a': message[i] = char(160); break;
-        case 'e': message[i] = char(130); break;
-        case 'i': message[i] = char(161); break;
-        case 'o': message[i] = char(162); break;
-        case 'u': message[i] = char(163); break;
+        case 'a': message[i] = atilde; break;
+        case 'e': message[i] = etilde; break;
+        case 'i': message[i] = itilde; break;
+        case 'o': message[i] = otilde; break;
+        case 'u': message[i] = utilde; break;
         default: message[i] = '&';
       }
       if (message[i] != '&') {
