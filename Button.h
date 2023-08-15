@@ -34,6 +34,8 @@ class Button
     unsigned long button_time_start;
     uint8_t button_momentary_cc;
     Bounce *button_debouncer;
+
+    bool isContinuous();
 };
 
 #endif

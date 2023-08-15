@@ -34,8 +34,8 @@ uint8_t Button::changed()
       return button_push_action;
     }
     if (button_hold_action > 0) {
-      button_pressed = true;
       button_time_start = millis();
+      button_pressed = true;
     }
   }
   if (button_debouncer->rose()) {
@@ -73,11 +73,37 @@ void Button::changeMomentary(bool state, uint8_t momentary_cc)
 
 uint8_t Button::settingsChanged()
 {
+  if (button_settings_action == 0) {
+    return 0;
+  }
   button_debouncer->update();
-  if (button_debouncer->fell()) {
-    if (button_settings_action > 0) {
+  if (isContinuous()) {
+    if (button_debouncer->fell()) {
+      button_time_start = millis();
+      button_pressed = true;
       return button_settings_action;
     }
+    if (button_pressed) {
+      if (button_debouncer->rose()) {
+        button_pressed = false;
+        return 0;
+      }
+      button_time_now = millis();
+      if (button_time_now - button_time_start > ACTION_TIME) {
+        return button_settings_action;
+      }
+    }
+  }
+  if (button_debouncer->fell()) {
+    return button_settings_action;
   }
   return 0;
+}
+
+bool Button::isContinuous()
+{
+  if (button_settings_action == 3 || button_settings_action == 2) {
+    return true;
+  }
+  return false;
 }
