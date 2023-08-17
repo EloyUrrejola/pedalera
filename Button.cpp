@@ -90,6 +90,7 @@ uint8_t Button::settingsChanged()
       }
       button_time_now = millis();
       if (button_time_now - button_time_start > ACTION_TIME) {
+        delay(CONTINUOUS_DELAY);
         return button_settings_action;
       }
     }

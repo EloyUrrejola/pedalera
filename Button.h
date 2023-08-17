@@ -21,6 +21,7 @@ class Button
     const uint8_t low_velocity = 0;
     const uint8_t debouncer_interval = 5;
     const uint16_t ACTION_TIME = 300;
+    const uint16_t CONTINUOUS_DELAY = 50;
 
     uint8_t button_pin;
     uint8_t button_cc;
