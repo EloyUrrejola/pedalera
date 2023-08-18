@@ -1,12 +1,14 @@
 #include "Button.h"
 
-Button::Button(uint8_t pin, uint8_t cc, uint8_t release_cc, uint8_t push_action, uint8_t hold_action, uint8_t settings_action)
+Button::Button(uint8_t pin, uint8_t cc, uint8_t release_cc, uint8_t set_momentary_cc, uint8_t momentary_cc, uint8_t push_action, uint8_t hold_action, uint8_t settings_action)
 {
   pinMode(pin, INPUT_PULLUP);
   button_pin = pin;
   button_cc = cc;
   button_release_cc = release_cc;
   button_momentary = false;
+  button_set_momentary_cc = set_momentary_cc;
+  button_momentary_cc = momentary_cc;
   button_push_action = push_action;
   button_hold_action = hold_action;
   button_settings_action = settings_action;
@@ -65,10 +67,9 @@ void Button::sendControlChange(uint8_t cc)
   }
 }
 
-void Button::changeMomentary(bool state, uint8_t momentary_cc)
+void Button::changeMomentary(bool state)
 {
   button_momentary = state;
-  button_momentary_cc = momentary_cc;
 }
 
 uint8_t Button::settingsChanged()
@@ -107,4 +108,9 @@ bool Button::isContinuous()
     return true;
   }
   return false;
+}
+
+uint8_t Button::getMomentaryCc()
+{
+  return button_momentary_cc;
 }

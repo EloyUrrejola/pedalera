@@ -6,12 +6,13 @@
 #include <SPI.h>
 
 #include "Button.h"
+#include "Clock.h"
 #include "Led.h"
+#include "Message.h"
 #include "Screen.h"
 #include "Settings.h"
 #include "SongSelector.h"
 #include "Tuner.h"
-#include "Clock.h"
 
 #define SCREEN_WIDTH  128
 #define SCREEN_HEIGHT 128
@@ -27,8 +28,8 @@ const uint8_t button_ccs[]             = {14,15,20,21,22,23,24,25,  26,27,28,29,
 // CCs al soltar el botón
 const uint8_t button_release_ccs[]     = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0,88};
 // CCs recibidos para activar momentary_ccs, por ej. guitar MOD (89)
-const uint8_t button_momentary[]       = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0,89, 0, 0, 0, 0, 0, 0};
-// Acción activada con button_momentary, por ej. guitar/bass (20)
+const uint8_t button_momentary_set[]   = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0,89, 0, 0, 0, 0, 0, 0};
+// Acción activada con button_momentary_set, por ej. guitar/bass (20)
 const uint8_t button_momentary_ccs[]   = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0,20, 0, 0, 0, 0, 0, 0};
 // Tunner: tuner_mode (3)
 const uint8_t button_push_actions[]    = { 0, 0, 0, 0, 3, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -48,6 +49,7 @@ const uint8_t NUMBER_OF_LEDS = sizeof(led_pins) / sizeof(led_pins[0]);
 
 Button *buttons[NUMBER_OF_BUTTONS];
 Led *leds[NUMBER_OF_LEDS];
+Message midi_message;
 const int LED_FLASHING_ON  = 500;
 const int LED_FLASHING_OFF = 500;
 const int LED_FLASHING_TIMES = 3;
@@ -62,10 +64,7 @@ uint8_t  current_song_index = 0;
 char current_song[21];
 char current_part[21];
 
-const uint8_t leds_midi_channel = 2;
-const uint8_t button_mode_midi_channel = 2;
 const uint8_t tuner_midi_channel = 3;
-const uint8_t settings_channel = 4;
 
 Adafruit_SSD1351 adafruit = Adafruit_SSD1351(
   SCREEN_WIDTH,
@@ -82,14 +81,25 @@ void setup()
   Serial.begin(9600);
 
   for (uint8_t i = 0; i < NUMBER_OF_BUTTONS; i++) {
-    buttons[i] = new Button(button_pins[i], button_ccs[i], button_release_ccs[i], button_push_actions[i], button_hold_actions[i], settings_buttons[i]);
+    buttons[i] = new Button(
+      button_pins[i],
+      button_ccs[i],
+      button_release_ccs[i],
+      button_momentary_set[i],
+      button_momentary_ccs[i],
+      button_push_actions[i],
+      button_hold_actions[i],
+      settings_buttons[i]
+    );
   }
   for (uint8_t i = 0; i < NUMBER_OF_LEDS; i++) {
     leds[i] = new Led(led_pins[i], led_ccs[i]);
   }
 
-  usbMIDI.setHandleControlChange(receivedMidiMessage);
-  usbMIDI.setHandleSystemExclusive(receivedSysEx);
+  midi_message.setButtonsAndLeds(buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS);
+
+  usbMIDI.setHandleControlChange(receiveMidiMessage);
+  usbMIDI.setHandleSystemExclusive(receiveSysEx);
 
   strcpy(current_song, "");
   strcpy(current_part, "READY");
@@ -162,69 +172,12 @@ bool any_led_flashing(bool leds_flashing[])
   return false;
 }
 
-void receivedMidiMessage(uint8_t channel, uint8_t control, uint8_t value)
+void receiveMidiMessage(uint8_t channel, uint8_t control, uint8_t value)
 {
-  check_leds(channel, control, value);
-  check_button_modes(channel, control, value);
-  check_settings(channel, control, value);
+  midi_message.process(channel, control, value);
 }
 
-void check_leds(uint8_t channel, uint8_t control, uint8_t value)
-{
-  if (channel != leds_midi_channel) {
-    return;
-  }
-  int led_index = getLedIndexByCc(control);
-  if (led_index > -1) {
-    if (value == 127) {
-      leds[led_index]->on();
-    } else {
-      leds[led_index]->off();
-    }
-  }
-}
-
-void check_button_modes(uint8_t channel, uint8_t control, uint8_t value)
-{
-  if (channel != button_mode_midi_channel) {
-    return;
-  }
-  int button_index = getButtonIndexByMomentaryCc(control);
-  if (button_index > -1) {
-    bool momentary_state = (value == 127) ? true : false;
-    buttons[button_index]->changeMomentary(momentary_state, button_momentary_ccs[button_index]);
-  }
-}
-
-int getLedIndexByCc(uint8_t cc)
-{
-  for (uint8_t i = 0; i < NUMBER_OF_LEDS; i++) {
-    if (cc == led_ccs[i]) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-int getButtonIndexByMomentaryCc(uint8_t cc)
-{
-  for (uint8_t i = 0; i < NUMBER_OF_BUTTONS; i++) {
-    if (cc == button_momentary[i]) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-void check_settings(uint8_t channel, uint8_t control, uint8_t value)
-{
-  if (channel != settings_channel) {
-    return;
-  }
-  Settings::setSettingValue(control, value);
-}
-
-void receivedSysEx(uint8_t *data, unsigned int length)
+void receiveSysEx(uint8_t *data, unsigned int length)
 {
   char message[length - 1];
   getMessage(data, length, message);

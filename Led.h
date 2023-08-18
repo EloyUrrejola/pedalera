@@ -14,6 +14,7 @@ class Led
     bool flashUpdateTimes();
     static uint8_t getLedIntensityLevel();
     static void setLedIntensityLevel(uint8_t intensity_level);
+    uint8_t getLedCc();
     
   private:
     const bool ON = true;

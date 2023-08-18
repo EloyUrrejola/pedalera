@@ -83,3 +83,8 @@ void Led::setLedIntensityLevel(uint8_t intensity_level)
 {
   Led::led_intensity_level = intensity_level - 1;
 }
+
+uint8_t Led::getLedCc()
+{
+  return led_cc;
+}
