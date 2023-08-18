@@ -63,7 +63,7 @@ void Message::processLedMessage(uint8_t cc, uint8_t value)
 
 void Message::processButtonModeMessage(uint8_t cc, uint8_t value)
 {
-  int button_index = getButtonIndexByMomentaryCc(cc);
+  int button_index = getButtonIndexBySetMomentaryCc(cc);
   if (button_index > -1) {
     bool momentary_state = (value == 127) ? true : false;
     buttons[button_index]->changeMomentary(momentary_state);
@@ -80,10 +80,10 @@ int Message::getLedIndexByCc(uint8_t cc)
   return -1;
 }
 
-int Message::getButtonIndexByMomentaryCc(uint8_t cc)
+int Message::getButtonIndexBySetMomentaryCc(uint8_t cc)
 {
   for (uint8_t i = 0; i < number_of_buttons; i++) {
-    if (cc == buttons[i]->getMomentaryCc()) {
+    if (cc == buttons[i]->getSetMomentaryCc()) {
       return i;
     }
   }

@@ -110,7 +110,7 @@ bool Button::isContinuous()
   return false;
 }
 
-uint8_t Button::getMomentaryCc()
+uint8_t Button::getSetMomentaryCc()
 {
-  return button_momentary_cc;
+  return button_set_momentary_cc;
 }

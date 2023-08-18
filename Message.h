@@ -29,7 +29,7 @@ class Message
     void processButtonModeMessage(uint8_t cc, uint8_t value);
     void processSettingMessage(uint8_t cc, uint8_t value);
     int getLedIndexByCc(uint8_t cc);
-    int getButtonIndexByMomentaryCc(uint8_t cc);
+    int getButtonIndexBySetMomentaryCc(uint8_t cc);
 };
 
 #endif

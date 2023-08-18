@@ -14,7 +14,7 @@ class Button
     uint8_t settingsChanged();
     void sendControlChange(uint8_t cc);
     uint8_t getButtonCc();
-    uint8_t getMomentaryCc();
+    uint8_t getSetMomentaryCc();
     
   private:
     const uint8_t channel = 1;
