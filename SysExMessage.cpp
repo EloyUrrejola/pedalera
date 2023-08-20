@@ -20,7 +20,7 @@ void SysExMessage::process(uint8_t *data, unsigned int length)
   if (strcmp(type, TYPE_LIST) == 0) {
     getSongListFromMessage(message);
   }
-
+  
   if (strcmp(type, TYPE_SONG) == 0) {
     getSongAndPartFromMessage(message);
   }
@@ -91,15 +91,16 @@ void SysExMessage::getSongListFromMessage(char *message)
 
     const uint8_t max_songs = SongList::getMaximumNumberOfSongs();
     char* song_list[max_songs];
+    const char* song_delimiter = "|";
+    char* song_ptr = strtok(song_list_string, song_delimiter);
     uint8_t song_count = 0;
-    char* song_token = strchr(song_list_string, SONG_DELIMITER);
-    while (song_token != NULL && song_count < max_songs) {
-      *song_token = '\0'; // Marcar el final del token actual
-      song_list[song_count] = song_list_string; // Asignar el token al array
-      song_list_string = song_token + 1; // Avanzar al inicio del siguiente token
-      song_token = strchr(song_list_string, SONG_DELIMITER); // Buscar el próximo delimitador
+    while (song_ptr != NULL && song_count < max_songs) {
+      song_list[song_count] = (char*)malloc(strlen(song_ptr) + 1);
+      strcpy(song_list[song_count], song_ptr);
+      song_ptr = strtok(NULL, song_delimiter);
       song_count++;
     }
+
     SongList::addSongs(song_list, song_count);
 
     if (song_count > 0) {
@@ -114,7 +115,6 @@ void SysExMessage::getSongAndPartFromMessage(char* message)
 {
   uint8_t current_song_index = getSongIndexFromMessage(message);
   SongList::setCurrentSongIndex(current_song_index);
-  char* current_song = SongList::getCurrentSong();
   char current_part[21];
   getPartFromMessage(message, current_part);
   SongList::setCurrentPart(current_part);

@@ -14,7 +14,6 @@ void MidiMessage::setButtonsAndLeds(Button* buttons[], uint8_t number_of_buttons
 
 void MidiMessage::process(uint8_t channel, uint8_t control, uint8_t value)
 {
-  Serial.println("process");
   if (isLedMessage(channel)) {
     processLedMessage(control, value);
   }

@@ -9,7 +9,11 @@ void SongList::addSongs(char* songs[], uint8_t total_songs)
 {
   current_song_index = 0;
   number_of_songs = total_songs;
-  memcpy(song_list, songs, number_of_songs);
+  
+  for (uint8_t i = 0; i < total_songs; i++) {
+    song_list[i] = (char*)malloc(strlen(songs[i]) + 1);
+    strcpy(song_list[i], songs[i]);
+  }
 }
 
 char** SongList::getSongList()

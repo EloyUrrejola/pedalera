@@ -163,7 +163,6 @@ bool any_led_flashing(bool leds_flashing[])
 
 void receiveMidiMessage(uint8_t channel, uint8_t control, uint8_t value)
 {
-  Serial.println(control);
   midi_message.process(channel, control, value);
 }
 

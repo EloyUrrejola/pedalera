@@ -19,7 +19,7 @@ class MidiMessage
     uint8_t number_of_buttons;
     uint8_t number_of_leds;
     const uint8_t LEDS_MIDI_CHANNEL = 2;
-    const uint8_t BUTTON_MODE_MIDI_CHANNEL = 2;
+    const uint8_t BUTTON_MODE_MIDI_CHANNEL = 3;
     const uint8_t SETTING_CHANNEL = 4;
 
     bool isLedMessage(uint8_t channel);

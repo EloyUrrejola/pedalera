@@ -19,7 +19,7 @@ void Screen::writeTempMessage(char* line1, char* line2)
 {
   writeMessage(line1, line2);
   delay(TEMP_MESSAGE_DELAY);
-  writeSongAndPart();
+  //writeSongAndPart();
 }
 
 void Screen::writeMessage(char* line1, char* line2)
