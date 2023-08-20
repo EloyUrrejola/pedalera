@@ -8,10 +8,11 @@
 #include "Button.h"
 #include "Clock.h"
 #include "Led.h"
-#include "Message.h"
+#include "MidiMessage.h"
 #include "Screen.h"
 #include "Settings.h"
 #include "SongSelector.h"
+#include "SysExMessage.h"
 #include "Tuner.h"
 
 #define SCREEN_WIDTH  128
@@ -49,20 +50,14 @@ const uint8_t NUMBER_OF_LEDS = sizeof(led_pins) / sizeof(led_pins[0]);
 
 Button *buttons[NUMBER_OF_BUTTONS];
 Led *leds[NUMBER_OF_LEDS];
-Message midi_message;
+MidiMessage midi_message;
+SysExMessage sysex_message;
+SongSelector song_selector;
 const int LED_FLASHING_ON  = 500;
 const int LED_FLASHING_OFF = 500;
 const int LED_FLASHING_TIMES = 3;
 
 uint8_t action;
-
-const int MAX_SONGS = 30;
-char* song_list[MAX_SONGS];
-uint8_t number_of_songs = 0;
-
-uint8_t  current_song_index = 0;
-char current_song[21];
-char current_part[21];
 
 const uint8_t tuner_midi_channel = 3;
 
@@ -97,12 +92,11 @@ void setup()
   }
 
   midi_message.setButtonsAndLeds(buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS);
+  sysex_message.setScreen(&screen);
+  song_selector.setScreenButtonsAndLeds(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS);
 
   usbMIDI.setHandleControlChange(receiveMidiMessage);
   usbMIDI.setHandleSystemExclusive(receiveSysEx);
-
-  strcpy(current_song, "");
-  strcpy(current_part, "READY");
 
   screen.begin();
   start();
@@ -110,7 +104,8 @@ void setup()
 
 void start()
 {
-  showDefaultScren();
+  screen.clean();
+  screen.writeMessage((char*) "", (char*) "READY");
   flash_leds(LED_FLASHING_TIMES);
   requestSetlist();
 }
@@ -136,12 +131,6 @@ void loop()
     }
   }
   usbMIDI.read();
-}
-
-void showDefaultScren()
-{
-  screen.clean();
-  screen.writeSong(current_song, current_part);
 }
 
 void flash_leds(int times)
@@ -174,169 +163,13 @@ bool any_led_flashing(bool leds_flashing[])
 
 void receiveMidiMessage(uint8_t channel, uint8_t control, uint8_t value)
 {
+  Serial.println(control);
   midi_message.process(channel, control, value);
 }
 
 void receiveSysEx(uint8_t *data, unsigned int length)
 {
-  char message[length - 1];
-  getMessage(data, length, message);
-  replaceTildeVowels(message);
-  char type[6] = "";
-  getMessageType(message, type);
-  if (strcmp(type, "list") == 0) {
-    getSongList(message);
-  }
-  if (strcmp(type, "song") == 0) {
-    current_song_index = getMessageSongIndex(message);
-    getCurrentSongName(current_song_index);
-    getMessagePart(message);
-    screen.writeSong(current_song, current_part);
-  }
-  if (strcmp(type, "chord") == 0) {
-    char *chord = getMessageChord(message);
-    if (strcmp(chord, "0") != 0) {
-      screen.writeChord(chord);
-    } else {
-      screen.removeChord();
-    }
-    delete[] chord;
-  }
-  if (strcmp(type, "time") == 0) {
-    int current_time = getDatetime(message);
-    Clock::setDatetime(current_time);
-  }
-}
-
-void getSongList(char *message)
-{
-  char *delimiter = strchr(message, ':');
-  if (delimiter != NULL) {
-    delimiter++;
-    char *song_list_string = (char*)malloc(strlen(delimiter) - 1);
-    strcpy(song_list_string, delimiter);
-
-    const char* song_delimiter = "|";
-    char* song_ptr = strtok(song_list_string, song_delimiter);
-    int song_index = 0;
-    while (song_ptr != NULL && song_index < MAX_SONGS) {
-      song_list[song_index] = (char*)malloc(strlen(song_ptr) + 1); // Agregar 1 para el carácter nulo '\0'
-      strcpy(song_list[song_index], song_ptr);
-      song_ptr = strtok(NULL, song_delimiter);
-      song_index++;
-    }
-    number_of_songs = song_index;
-
-    if (number_of_songs > 0) {
-      screen.writeSong((char*)"SETLIST", (char*)"LOADED");
-      delay(3000);
-      showDefaultScren();
-    }
-
-    free(song_list_string);
-  }
-}
-
-void getCurrentSongName(int song_index)
-{
-  if (song_index < number_of_songs) {
-    strcpy(current_song, song_list[song_index]);
-  } else {
-    requestSetlist();
-  }
-}
-
-void getMessage(uint8_t *data, unsigned int length, char *message)
-{
-  for (unsigned int i = 0; i < (length - 2); i++) {
-    message[i] = data[i + 1];
-  }
-  message[length - 2] = '\0';
-}
-
-void replaceTildeVowels(char *message) {
-  int length = strlen(message);
-  char atilde = 'a';//char(160)
-  char etilde = 'e';//char(130)
-  char itilde = 'i';//char(161)
-  char otilde = 'o';//char(162)
-  char utilde = 'u';//char(163)
-  for (int i = 0; i < length; i++) {
-    if (message[i] == '&') {
-      switch (message[i+1]) {
-        case 'a': message[i] = atilde; break;
-        case 'e': message[i] = etilde; break;
-        case 'i': message[i] = itilde; break;
-        case 'o': message[i] = otilde; break;
-        case 'u': message[i] = utilde; break;
-        default: message[i] = '&';
-      }
-      if (message[i] != '&') {
-        for (int j = i+1; j < length-1; j++) {
-          message[j] = message[j+1];
-        }
-        length--;
-      }
-      message[length] = '\0';
-    }
-  }
-}
-
-void getMessageType(char* message, char* type)
-{
-  char* delimiter = strchr(message, ':');
-  if (delimiter != NULL) {
-    int type_len = delimiter - message;
-    memcpy(type, message, type_len);
-    type[type_len] = '\0';
-  }
-}
-
-uint8_t getMessageSongIndex(char* message)
-{
-  char* song_number = NULL;
-  char* delimiter1 = strchr(message, ':');
-  char* delimiter2 = strchr(message, '-');
-  if (delimiter1 != NULL) {
-    if (delimiter2 != NULL && delimiter2 > delimiter1) {
-      int song_len = delimiter2 - delimiter1 - 1;
-      song_number = new char[song_len + 1];
-      memcpy(song_number, delimiter1 + 1, song_len);
-      song_number[song_len] = '\0';
-    } else {
-      int song_len = strlen(delimiter1 + 1);
-      song_number = new char[song_len + 1];
-      memcpy(song_number, delimiter1 + 1, song_len);
-      song_number[song_len] = '\0';
-    }
-    return atoi(song_number);
-  }
-  return -1;
-}
-
-void getMessagePart(char* message)
-{
-  char* delimiter = strchr(message, '-');
-  if (delimiter != NULL) {
-    int part_len = strlen(delimiter + 1);
-    memcpy(current_part, delimiter + 1, part_len);
-    current_part[part_len] = '\0';
-  } else {
-    current_part[0] = '\0';
-  }
-}
-
-char* getMessageChord(char* message)
-{
-  char* chord = NULL;
-  char* delimiter = strchr(message, ':');
-  if (delimiter != NULL) {
-    int chord_len = strlen(delimiter + 1);
-    chord = new char[chord_len + 1];
-    memcpy(chord, delimiter + 1, chord_len);
-    chord[chord_len] = '\0';
-  }
-  return chord;
+  sysex_message.process(data, length);
 }
 
 void requestSetlist()
@@ -367,16 +200,15 @@ void settingsMode()
 void exitSettingsMode()
 {
   screen.clean();
-  showDefaultScren();
+  screen.writeSongAndPart();
 }
 
 void songSelectorMode()
 {
-  if (number_of_songs > 0) {
-    SongSelector songSelector(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS, song_list, number_of_songs);
-    songSelector.startSongSelectorMode(current_song_index);
-    songSelector.songSelectorMode();
-    songSelector.exitSongSelectorMode();
+  if (SongList::getNumberOfSongs() > 0) {
+    song_selector.startSongSelectorMode();
+    song_selector.songSelectorMode();
+    song_selector.exitSongSelectorMode();
     exitSongSelectorMode();
   } else {
     requestSetlist();
@@ -386,7 +218,7 @@ void songSelectorMode()
 void exitSongSelectorMode()
 {
   screen.clean();
-  showDefaultScren();
+  screen.writeSongAndPart();
 }
 
 void tunerMode()
@@ -401,7 +233,7 @@ void tunerMode()
 void exitTunerMode()
 {
   screen.clean();
-  showDefaultScren();
+  screen.writeSongAndPart();
 }
 
 void showClock(uint8_t wait_seconds)
@@ -414,7 +246,7 @@ void showClock(uint8_t wait_seconds)
 void exitClockMode()
 {
   screen.clean();
-  showDefaultScren();
+  screen.writeSongAndPart();
 }
 
 #endif

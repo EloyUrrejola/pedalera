@@ -2,29 +2,30 @@
 #define SONG_SELECTOR_H
 
 #include <Arduino.h>
-#include "Screen.h"
 #include "Button.h"
 #include "Led.h"
+#include "Screen.h"
+#include "SongList.h"
 
 class SongSelector
 {
   public:
-    SongSelector(Screen *screen, Button **buttons, const uint8_t number_of_buttons, Led **leds, const uint8_t number_of_leds, char **songs, uint8_t number_of_songs);
-    void startSongSelectorMode(uint8_t current_song_index);
+    SongSelector();
+    void setScreenButtonsAndLeds(Screen *screen, Button **buttons, uint8_t number_of_buttons, Led **leds, uint8_t number_of_leds);
+    void startSongSelectorMode();
     void songSelectorMode();
     void exitSongSelectorMode();
+
   private:
-    Screen *_screen;
-    Button **_buttons;
-    Led    **_leds;
-    const uint8_t _number_of_buttons;
-    const uint8_t _number_of_leds;
-    char **_songs;
-    uint8_t _number_of_songs;
+    Screen *screen;
+    Button **buttons;
+    Led    **leds;
+    uint8_t number_of_buttons;
+    uint8_t number_of_leds;
 
     const int LED_FLASHING_ON  = 500;
     const int LED_FLASHING_OFF = 500;
-    const uint8_t _leds_index[4] = {8, 9, 10, 11};
+    const uint8_t leds_index[4] = {8, 9, 10, 11};
     const uint8_t _cancel = 1;
     const uint8_t _pg_up = 2;
     const uint8_t _pd_dn = 3;

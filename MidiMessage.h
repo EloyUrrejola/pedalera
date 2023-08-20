@@ -1,15 +1,15 @@
-#ifndef MESSAGE_H
-#define MESSAGE_H
+#ifndef MIDI_MESSAGE_H
+#define MIDI_MESSAGE_H
 
 #include <Arduino.h>
 #include "Button.h"
 #include "Led.h"
 #include "Settings.h"
 
-class Message
+class MidiMessage
 {
   public:
-    Message();
+    MidiMessage();
     void setButtonsAndLeds(Button* buttons[], uint8_t number_of_buttons, Led* leds[], uint8_t number_of_leds);
     void process(uint8_t channel, uint8_t control, uint8_t value);
     

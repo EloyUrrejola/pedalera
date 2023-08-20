@@ -2,6 +2,7 @@
 #define SCREEN_H
 
 #include <Arduino.h>
+#include "SongList.h"
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1351.h>
@@ -23,7 +24,9 @@ class Screen
     Screen(Adafruit_SSD1351 *adafruit);
     void begin();
     void clean();
-    void writeSong(char* song, char* part);
+    void writeTempMessage(char* line1, char* line2);
+    void writeMessage(char* line1, char* line2);
+    void writeSongAndPart();
     void writeChord(char* chord);
     void removeChord();
     void writeSettingsTitle(char *title);
@@ -37,6 +40,7 @@ class Screen
     void showClock(int hours, int minutes, int seconds, int day, int month, int year);
 
   private:
+    const uint32_t TEMP_MESSAGE_DELAY = 3000;
     const int OLED_Color_Black        = 0x0000;
     const int OLED_Color_Blue         = 0x001F;
     const int OLED_Color_Red          = 0xF800;
@@ -47,6 +51,13 @@ class Screen
     const int OLED_Color_White        = 0xFFFF;
 
     const int SCREEN_BG_COLOR         = OLED_Color_Black;
+
+    const GFXfont *message_font = &Open_Sans_Condensed_Light_24;
+    const int message_color  = OLED_Color_Cyan;
+    const uint8_t message_x     = 0;
+    const uint8_t message_line1_y     = 20;
+    const uint8_t message_line2_y     = 50;
+    const uint8_t message_size  = 1;
 
     const GFXfont *song_name_font = &Open_Sans_Condensed_Bold_18;
     const int  song_name_color = OLED_Color_White;

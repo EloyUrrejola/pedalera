@@ -15,8 +15,38 @@ void Screen::clean()
   screen->fillScreen(OLED_Color_Black);
 }
 
-void Screen::writeSong(char* song, char* part)
+void Screen::writeTempMessage(char* line1, char* line2)
 {
+  writeMessage(line1, line2);
+  delay(TEMP_MESSAGE_DELAY);
+  writeSongAndPart();
+}
+
+void Screen::writeMessage(char* line1, char* line2)
+{
+  screen->fillRect(0, 0, 128, 56, SCREEN_BG_COLOR);
+
+  screen->setFont(message_font);
+  screen->setTextSize(message_size);
+  screen->setTextWrap(false);
+
+  int16_t centered_x = getCenteredXFromText(line1);
+
+  screen->setTextColor(message_color);
+  screen->setCursor(centered_x, message_line1_y);
+  screen->print(line1);
+
+  centered_x = getCenteredXFromText(line2);
+
+  screen->setCursor(centered_x, message_line2_y);
+  screen->print(line2);
+}
+
+void Screen::writeSongAndPart()
+{
+  char* song = SongList::getCurrentSong();
+  char* part = SongList::getCurrentPart();
+
   screen->fillRect(0, 0, 128, 56, SCREEN_BG_COLOR);
 
   screen->setFont(song_name_font);

@@ -1,10 +1,10 @@
-#include "Message.h"
+#include "MidiMessage.h"
 
-Message::Message()
+MidiMessage::MidiMessage()
 {
 }
 
-void Message::setButtonsAndLeds(Button* buttons[], uint8_t number_of_buttons, Led* leds[], uint8_t number_of_leds)
+void MidiMessage::setButtonsAndLeds(Button* buttons[], uint8_t number_of_buttons, Led* leds[], uint8_t number_of_leds)
 {
   this->buttons = buttons;
   this->number_of_buttons = number_of_buttons;
@@ -12,8 +12,9 @@ void Message::setButtonsAndLeds(Button* buttons[], uint8_t number_of_buttons, Le
   this->number_of_leds = number_of_leds;
 }
 
-void Message::process(uint8_t channel, uint8_t control, uint8_t value)
+void MidiMessage::process(uint8_t channel, uint8_t control, uint8_t value)
 {
+  Serial.println("process");
   if (isLedMessage(channel)) {
     processLedMessage(control, value);
   }
@@ -25,7 +26,7 @@ void Message::process(uint8_t channel, uint8_t control, uint8_t value)
   }
 }
 
-bool Message::isLedMessage(uint8_t channel)
+bool MidiMessage::isLedMessage(uint8_t channel)
 {
   if (channel == LEDS_MIDI_CHANNEL) {
     return true;
@@ -33,7 +34,7 @@ bool Message::isLedMessage(uint8_t channel)
   return false;
 }
 
-bool Message::isButtonModeMessage(uint8_t channel)
+bool MidiMessage::isButtonModeMessage(uint8_t channel)
 {
   if (channel == BUTTON_MODE_MIDI_CHANNEL) {
     return true;
@@ -41,7 +42,7 @@ bool Message::isButtonModeMessage(uint8_t channel)
   return false;
 }
 
-bool Message::isSettingMessage(uint8_t channel)
+bool MidiMessage::isSettingMessage(uint8_t channel)
 {
   if (channel == SETTING_CHANNEL) {
     return true;
@@ -49,7 +50,7 @@ bool Message::isSettingMessage(uint8_t channel)
   return false;
 }
 
-void Message::processLedMessage(uint8_t cc, uint8_t value)
+void MidiMessage::processLedMessage(uint8_t cc, uint8_t value)
 {
   int led_index = getLedIndexByCc(cc);
   if (led_index > -1) {
@@ -61,7 +62,7 @@ void Message::processLedMessage(uint8_t cc, uint8_t value)
   }
 }
 
-void Message::processButtonModeMessage(uint8_t cc, uint8_t value)
+void MidiMessage::processButtonModeMessage(uint8_t cc, uint8_t value)
 {
   int button_index = getButtonIndexBySetMomentaryCc(cc);
   if (button_index > -1) {
@@ -70,7 +71,7 @@ void Message::processButtonModeMessage(uint8_t cc, uint8_t value)
   }
 }
 
-int Message::getLedIndexByCc(uint8_t cc)
+int MidiMessage::getLedIndexByCc(uint8_t cc)
 {
   for (uint8_t i = 0; i < number_of_leds; i++) {
     if (cc == leds[i]->getLedCc()) {
@@ -80,7 +81,7 @@ int Message::getLedIndexByCc(uint8_t cc)
   return -1;
 }
 
-int Message::getButtonIndexBySetMomentaryCc(uint8_t cc)
+int MidiMessage::getButtonIndexBySetMomentaryCc(uint8_t cc)
 {
   for (uint8_t i = 0; i < number_of_buttons; i++) {
     if (cc == buttons[i]->getSetMomentaryCc()) {
@@ -90,7 +91,7 @@ int Message::getButtonIndexBySetMomentaryCc(uint8_t cc)
   return -1;
 }
 
-void Message::processSettingMessage(uint8_t cc, uint8_t value)
+void MidiMessage::processSettingMessage(uint8_t cc, uint8_t value)
 {
   Settings::setSettingValue(cc, value);
 }

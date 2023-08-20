@@ -1,22 +1,26 @@
 #include "SongSelector.h"
 
-SongSelector::SongSelector(Screen *screen, Button **buttons, const uint8_t number_of_buttons, Led **leds, const uint8_t number_of_leds, char **songs, uint8_t number_of_songs)
-    : _number_of_buttons(number_of_buttons), _number_of_leds(number_of_leds), _songs(songs), _number_of_songs(number_of_songs)
+SongSelector::SongSelector()
 {
-  _screen = screen;
-  _buttons = buttons;
-  _leds = leds;
 }
 
-void SongSelector::startSongSelectorMode(uint8_t current_song_index)
+void SongSelector::setScreenButtonsAndLeds(Screen *screen, Button **buttons, uint8_t number_of_buttons, Led **leds, uint8_t number_of_leds)
 {
-  _current_song_index = current_song_index;
-  _temp_song_index = _current_song_index;
-  _screen->clean();
+  this->screen = screen;
+  this->buttons = buttons;
+  this->number_of_buttons = number_of_buttons;
+  this->leds = leds;
+  this->number_of_leds = number_of_leds;
+}
+
+void SongSelector::startSongSelectorMode()
+{
+  _temp_song_index = SongList::getCurrentSongIndex();
+  screen->clean();
   for (uint8_t i = 0; i < 4; i++) {
-    _leds[_leds_index[i]]->flash(LED_FLASHING_ON, LED_FLASHING_OFF, -1);
+    leds[leds_index[i]]->flash(LED_FLASHING_ON, LED_FLASHING_OFF, -1);
   }
-  showSongSelectorPanel(_current_song_index, DOWN);
+  showSongSelectorPanel(_temp_song_index, DOWN);
 }
 
 void SongSelector::songSelectorMode()
@@ -24,15 +28,15 @@ void SongSelector::songSelectorMode()
   bool settings_mode = true;
   while (settings_mode) {
     for (uint8_t i = 0; i < 4; i++) {
-      _leds[_leds_index[i]]->flashUpdate();
+      leds[leds_index[i]]->flashUpdate();
     }
-    for (uint8_t i = 0; i < _number_of_buttons; i++) {
-      uint8_t action = _buttons[i]->settingsChanged();
+    for (uint8_t i = 0; i < number_of_buttons; i++) {
+      uint8_t action = buttons[i]->settingsChanged();
       if (action == _pg_up && _temp_song_index > 0) {
         _temp_song_index = _temp_song_index + UP;
         showSongSelectorPanel(_temp_song_index, UP);
       }
-      if (action == _pd_dn && _temp_song_index < _number_of_songs - 1) {
+      if (action == _pd_dn && _temp_song_index < SongList::getNumberOfSongs() - 1) {
         _temp_song_index = _temp_song_index + DOWN;
         showSongSelectorPanel(_temp_song_index, DOWN);
       }
@@ -54,7 +58,7 @@ void SongSelector::songSelectorMode()
 void SongSelector::exitSongSelectorMode()
 {
   for (uint8_t i = 0; i < 4; i++) {
-    _leds[_leds_index[i]]->off();
+    leds[leds_index[i]]->off();
   }
 }
 
@@ -63,10 +67,11 @@ void SongSelector::showSongSelectorPanel(uint8_t song_index, int direction)
   uint8_t first_song = 0;
   uint8_t selected_song = 1;
   uint8_t max_number_of_visible_songs = 6;
-  uint8_t number_of_visible_songs = (_number_of_songs < max_number_of_visible_songs) ? _number_of_songs : max_number_of_visible_songs;
+  uint8_t number_of_songs = SongList::getNumberOfSongs();
+  uint8_t number_of_visible_songs = (number_of_songs < max_number_of_visible_songs) ? number_of_songs : max_number_of_visible_songs;
   const char* visible_songs[number_of_visible_songs];
 
-  if (_number_of_songs < max_number_of_visible_songs) {
+  if (number_of_songs < max_number_of_visible_songs) {
     first_song = 0;
     selected_song = song_index;
   } else {
@@ -80,7 +85,7 @@ void SongSelector::showSongSelectorPanel(uint8_t song_index, int direction)
       }
     }
     if (direction == DOWN) {
-      uint8_t last_song = _number_of_songs - 1;
+      uint8_t last_song = number_of_songs - 1;
       if (song_index > last_song - 4) {
         first_song = last_song - 5;
         selected_song = 5 - last_song + song_index;
@@ -96,12 +101,13 @@ void SongSelector::showSongSelectorPanel(uint8_t song_index, int direction)
     }
   }
   getRangeSongs(first_song, number_of_visible_songs, visible_songs);
-  _screen->writeSongList(visible_songs, selected_song, number_of_visible_songs);
+  screen->writeSongList(visible_songs, selected_song, number_of_visible_songs);
 }
 
 void SongSelector::getRangeSongs(uint8_t first_song, uint8_t number_of_visible_songs, const char** visible_songs)
 {
+  char** song_list = SongList::getSongList();
   for (int i = 0; i < number_of_visible_songs; i++) {
-    visible_songs[i] = _songs[first_song + i];
+    visible_songs[i] = song_list[first_song + i];
   }
 }
