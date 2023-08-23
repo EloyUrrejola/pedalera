@@ -2,6 +2,9 @@
 #define SYS_EX_MESSAGE_H
 
 #include <Arduino.h>
+#include <sstream>
+#include <string>
+
 #include "Clock.h"
 #include "Screen.h"
 #include "SongList.h"
@@ -20,6 +23,7 @@ class SysExMessage
     const char* TYPE_CHORD = "chord";
     const char* TYPE_TIME = "time";
     const char TYPE_DELIMITER = ':';
+    const char LIST_DELIMITER = '%';
     const char SONG_DELIMITER = '|';
 
     void getMessage(uint8_t *data, unsigned int length, char *message);
@@ -33,6 +37,8 @@ class SysExMessage
     void getChordFromMessage(char* message, char* chord);
     void getDatetime(char* message);
     int getDatetimeFromMessage(char* message);
+
+    void hasNullTerminator(const char* str);
 };
 
 #endif

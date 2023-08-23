@@ -107,6 +107,9 @@ void start()
   screen.clean();
   screen.writeMessage((char*) "", (char*) "READY");
   flash_leds(LED_FLASHING_TIMES);
+  // Hay que dar tiempo a que se GP conecte con el puerto USB.
+  // Habrá que hacer un ping antes.
+  delay(3000);
   requestSetlist();
 }
 

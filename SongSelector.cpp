@@ -16,6 +16,7 @@ void SongSelector::setScreenButtonsAndLeds(Screen *screen, Button **buttons, uin
 void SongSelector::startSongSelectorMode()
 {
   _temp_song_index = SongList::getCurrentSongIndex();
+  _song_list = SongList::getSongList();
   screen->clean();
   for (uint8_t i = 0; i < 4; i++) {
     leds[leds_index[i]]->flash(LED_FLASHING_ON, LED_FLASHING_OFF, -1);
@@ -106,8 +107,7 @@ void SongSelector::showSongSelectorPanel(uint8_t song_index, int direction)
 
 void SongSelector::getRangeSongs(uint8_t first_song, uint8_t number_of_visible_songs, const char** visible_songs)
 {
-  char** song_list = SongList::getSongList();
   for (int i = 0; i < number_of_visible_songs; i++) {
-    visible_songs[i] = song_list[first_song + i];
+    visible_songs[i] = _song_list[first_song + i].c_str();
   }
 }

@@ -19,7 +19,7 @@ void Screen::writeTempMessage(char* line1, char* line2)
 {
   writeMessage(line1, line2);
   delay(TEMP_MESSAGE_DELAY);
-  //writeSongAndPart();
+  writeSongAndPart();
 }
 
 void Screen::writeMessage(char* line1, char* line2)
@@ -44,8 +44,15 @@ void Screen::writeMessage(char* line1, char* line2)
 
 void Screen::writeSongAndPart()
 {
-  char* song = SongList::getCurrentSong();
-  char* part = SongList::getCurrentPart();
+  if (SongList::getNumberOfSongs() == 0) {
+    writeMessage((char*) "No", (char*) "setlist");
+    return;
+  }
+
+  std::string song_string = SongList::getCurrentSong();
+  std::string part_string = SongList::getCurrentPart();
+  const char* song = song_string.c_str();
+  const char* part = part_string.c_str();
 
   screen->fillRect(0, 0, 128, 56, SCREEN_BG_COLOR);
 

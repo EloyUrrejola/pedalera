@@ -2,6 +2,8 @@
 #define SONG_SELECTOR_H
 
 #include <Arduino.h>
+#include <string>
+
 #include "Button.h"
 #include "Led.h"
 #include "Screen.h"
@@ -35,6 +37,7 @@ class SongSelector
 
     uint8_t _temp_song_index;
     uint8_t _current_song_index;
+    std::string* _song_list;
 
     void showSongSelectorPanel(uint8_t song_index, int direction);
     void getRangeSongs(uint8_t first_song, uint8_t number_of_visible_songs, const char** songs);

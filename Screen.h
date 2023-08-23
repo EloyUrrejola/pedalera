@@ -2,6 +2,8 @@
 #define SCREEN_H
 
 #include <Arduino.h>
+#include <string>
+
 #include "SongList.h"
 
 #include <Adafruit_GFX.h>
@@ -40,7 +42,7 @@ class Screen
     void showClock(int hours, int minutes, int seconds, int day, int month, int year);
 
   private:
-    const uint32_t TEMP_MESSAGE_DELAY = 3000;
+    const uint32_t TEMP_MESSAGE_DELAY = 2000;
     const int OLED_Color_Black        = 0x0000;
     const int OLED_Color_Blue         = 0x001F;
     const int OLED_Color_Red          = 0xF800;

@@ -1,24 +1,44 @@
 #include "SongList.h"
 
-char* SongList::song_list[SongList::MAX_SONGS];
+char SongList::list_name[20] = "";
+std::string SongList::song_list[SongList::MAX_SONGS];
 uint8_t SongList::current_song_index = 0;
-char* SongList::current_part = nullptr;
+char SongList::current_part[MAX_PART_LENGTH] = "";
 uint8_t SongList::number_of_songs = 0;
 
-void SongList::addSongs(char* songs[], uint8_t total_songs)
+void SongList::addSongs(const std::string& list_name, const std::string songs[])
 {
+  freeSongs();
+
+  strncpy(SongList::list_name, list_name.c_str(), sizeof(SongList::list_name) - 1);
+  SongList::list_name[sizeof(SongList::list_name) - 1] = '\0';
+
   current_song_index = 0;
-  number_of_songs = total_songs;
-  
-  for (uint8_t i = 0; i < total_songs; i++) {
-    song_list[i] = (char*)malloc(strlen(songs[i]) + 1);
-    strcpy(song_list[i], songs[i]);
+  strcpy(current_part, "");
+
+  uint8_t i;
+  for (i = 0; songs[i] != ""; i++) {
+    song_list[i] = songs[i];
   }
+  number_of_songs = i;
 }
 
-char** SongList::getSongList()
+
+void SongList::freeSongs()
 {
-  return song_list;
+  for (uint8_t i = 0; i < number_of_songs; i++) {
+    song_list[i].clear();
+  }
+  number_of_songs = 0;
+}
+
+std::string* SongList::getSongList()
+{
+  std::string* songs = new std::string[number_of_songs];
+  for (uint8_t i = 0; i < number_of_songs; i++) {
+    songs[i] = song_list[i];
+  }
+  return songs;
 }
 
 uint8_t SongList::getMaximumNumberOfSongs()
@@ -26,12 +46,12 @@ uint8_t SongList::getMaximumNumberOfSongs()
   return MAX_SONGS;
 }
 
-char* SongList::getCurrentSong()
+std::string SongList::getCurrentSong()
 {
   return song_list[current_song_index];
 }
 
-char* SongList::getCurrentPart()
+std::string SongList::getCurrentPart()
 {
   return current_part;
 }
@@ -46,9 +66,10 @@ uint8_t SongList::getCurrentSongIndex()
   return current_song_index;
 }
 
-void SongList::setCurrentPart(char* part)
+void SongList::setCurrentPart(const std::string& part)
 {
-  current_part = part;
+  strncpy(current_part, part.c_str(), sizeof(current_part) - 1);
+  current_part[sizeof(current_part) - 1] = '\0';
 }
 
 uint8_t SongList::getNumberOfSongs()

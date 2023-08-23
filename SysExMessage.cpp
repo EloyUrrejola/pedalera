@@ -84,35 +84,47 @@ void SysExMessage::getMessageType(char* message, char* type)
 void SysExMessage::getSongListFromMessage(char *message)
 {
   char *delimiter = strchr(message, TYPE_DELIMITER);
-  if (delimiter != NULL) {
-    delimiter++;
-    char *song_list_string = (char*)malloc(strlen(delimiter) - 1);
-    strcpy(song_list_string, delimiter);
+  if (delimiter == NULL) {
+    return;
+  }
 
-    const uint8_t max_songs = SongList::getMaximumNumberOfSongs();
-    char* song_list[max_songs];
-    const char* song_delimiter = "|";
-    char* song_ptr = strtok(song_list_string, song_delimiter);
-    uint8_t song_count = 0;
-    while (song_ptr != NULL && song_count < max_songs) {
-      song_list[song_count] = (char*)malloc(strlen(song_ptr) + 1);
-      strcpy(song_list[song_count], song_ptr);
-      song_ptr = strtok(NULL, song_delimiter);
-      song_count++;
-    }
+  delimiter++;
+  std::string song_list_string = delimiter;
 
-    SongList::addSongs(song_list, song_count);
+  size_t list_delimiter_pos = song_list_string.find(LIST_DELIMITER);
+  if (list_delimiter_pos == std::string::npos) {
+    return;
+  }
 
-    if (song_count > 0) {
-      screen->writeTempMessage((char*)"SETLIST", (char*)"LOADED");
-    }
+  std::string list_name = song_list_string.substr(0, list_delimiter_pos);
+  song_list_string.erase(0, list_delimiter_pos + 1);
 
-    free(song_list_string);
+  const uint8_t max_songs = SongList::getMaximumNumberOfSongs();
+  std::string song_list[max_songs];
+  uint8_t song_count = 0;
+
+  std::istringstream song_stream(song_list_string);
+  std::string song;
+
+  while (std::getline(song_stream, song, SONG_DELIMITER) && song_count < max_songs) {
+    song_list[song_count] = song;
+    song_count++;
+  }
+
+  SongList::addSongs(list_name, song_list);
+
+  if (song_count > 0) {
+    char list_name_copy[list_name.length() + 1];
+    strcpy(list_name_copy, list_name.c_str());
+    screen->writeTempMessage(list_name_copy, (char*)"LOADED");
   }
 }
 
 void SysExMessage::getSongAndPartFromMessage(char* message)
 {
+  if (SongList::getNumberOfSongs() == 0) {
+    return;
+  }
   uint8_t current_song_index = getSongIndexFromMessage(message);
   SongList::setCurrentSongIndex(current_song_index);
   char current_part[21];
