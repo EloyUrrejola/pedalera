@@ -1,18 +1,23 @@
 #include "Tuner.h"
 
-Tuner::Tuner(Screen *screen, Button **buttons, const uint8_t number_of_buttons, Led **leds, const uint8_t number_of_leds, const uint8_t midi_channel)
-    : _number_of_buttons(number_of_buttons), _number_of_leds(number_of_leds), _midi_channel(midi_channel)
+Tuner::Tuner()
 {
-  _screen = screen;
-  _buttons = buttons;
-  _leds = leds;
+}
+
+void Tuner::init(Screen *screen, Button **buttons, uint8_t number_of_buttons, Led **leds, uint8_t number_of_leds)
+{
+  this->screen = screen;
+  this->buttons = buttons;
+  this->number_of_buttons = number_of_buttons;
+  this->leds = leds;
+  this->number_of_leds = number_of_leds;
 }
 
 void Tuner::startTunerMode()
 {
-  _screen->clean();
-  //_screen->writeTunerTitle();
-  _screen->showTuningBackground();
+  screen->clean();
+  //screen->writeTunerTitle();
+  screen->showTuningBackground();
 }
 
 void Tuner::tunerMode()
@@ -24,22 +29,22 @@ void Tuner::tunerMode()
   uint8_t last_tuning = 0;
   while (tuner_mode) {
     for (uint8_t i = 0; i < _number_of_leds_flashing; i++) {
-      _leds[_leds_flashing_index[i]]->flashUpdate();
+      leds[_leds_flashing_index[i]]->flashUpdate();
     }
-    for (uint8_t i = 0; i < _number_of_buttons; i++) {
-      uint8_t action = _buttons[i]->settingsChanged();
+    for (uint8_t i = 0; i < number_of_buttons; i++) {
+      uint8_t action = buttons[i]->settingsChanged();
       if (action == _exit) {
-        _buttons[i]->sendControlChange(_buttons[i]->getButtonCc());
+        buttons[i]->sendControlChange(buttons[i]->getButtonCc());
         tuner_mode = false;
       }
     }
-    if (usbMIDI.read(_midi_channel)) {
+    if (usbMIDI.read(MIDI_CHANNEL)) {
       //showLedTuning(usbMIDI.getData1(), usbMIDI.getData2());
       cc = usbMIDI.getData1();
       value = usbMIDI.getData2();
       if (cc == 20) {
         getNote(value, note);
-        _screen->showNote(note);
+        screen->showNote(note);
       }
       if (cc == 21) {
         showTuning(value, last_tuning);
@@ -51,7 +56,7 @@ void Tuner::tunerMode()
 
 void Tuner::showTuning(uint8_t tuning, uint8_t last_tuning)
 {
-  _screen->showTuning(tuning, last_tuning);
+  screen->showTuning(tuning, last_tuning);
   //showLedTuning(note, tuning);
 }
 

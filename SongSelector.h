@@ -13,7 +13,7 @@ class SongSelector
 {
   public:
     SongSelector();
-    void setScreenButtonsAndLeds(Screen *screen, Button **buttons, uint8_t number_of_buttons, Led **leds, uint8_t number_of_leds);
+    void init(Screen *screen, Button **buttons, uint8_t number_of_buttons, Led **leds, uint8_t number_of_leds);
     void startSongSelectorMode();
     void songSelectorMode();
     void exitSongSelectorMode();

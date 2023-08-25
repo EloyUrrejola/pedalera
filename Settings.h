@@ -10,17 +10,18 @@
 class Settings
 {
   public:
-    Settings(Screen *screen, Button **buttons, const uint8_t number_of_buttons, Led **leds, const uint8_t number_of_leds);
+    Settings();
+    void init(Screen *screen, Button **buttons, const uint8_t number_of_buttons, Led **leds, const uint8_t number_of_leds);
     static void setSettingValue(uint8_t cc, uint8_t value);
     void startSettingsMode();
     void settingsMode();
     void exitSettingsMode();
   private:
-    Screen *_screen;
-    Button **_buttons;
-    Led    **_leds;
-    const uint8_t _number_of_buttons;
-    const uint8_t _number_of_leds;
+    Screen *screen;
+    Button **buttons;
+    Led    **leds;
+    uint8_t number_of_buttons;
+    uint8_t number_of_leds;
 
     const uint8_t _number_of_setting_buttons = 4;
     const uint8_t _buttons_index[4] = {11,12,16,17};

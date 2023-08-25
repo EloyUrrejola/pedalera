@@ -6,7 +6,7 @@
 #include <SPI.h>
 
 #include "Button.h"
-#include "Clock.h"
+#include "MyClock.h"
 #include "Led.h"
 #include "MidiMessage.h"
 #include "Screen.h"
@@ -44,7 +44,7 @@ const uint8_t TUNER_ACTION = 3;
 const uint8_t CLOCK_ACTION = 4;
 const uint8_t NUMBER_OF_BUTTONS = sizeof(button_pins) / sizeof(button_pins[0]);
 
-const uint8_t led_pins[]    = { 7, 4, 5, 6,24,25,28,29,  33,36,37,14,18,15};
+const uint8_t led_pins[]    = { 7, 4, 5, 6,24,25,28,29,  33,37,36,14,18,15};
 const uint8_t led_ccs[]     = {14,15,20,21,22,23,24,25,  26,27,28,29,85,86};
 const uint8_t NUMBER_OF_LEDS = sizeof(led_pins) / sizeof(led_pins[0]);
 
@@ -53,13 +53,15 @@ Led *leds[NUMBER_OF_LEDS];
 MidiMessage midi_message;
 SysExMessage sysex_message;
 SongSelector song_selector;
+Settings settings;
+Tuner tuner;
+MyClock my_clock;
+
 const int LED_FLASHING_ON  = 500;
 const int LED_FLASHING_OFF = 500;
 const int LED_FLASHING_TIMES = 3;
 
 uint8_t action;
-
-const uint8_t tuner_midi_channel = 3;
 
 Adafruit_SSD1351 adafruit = Adafruit_SSD1351(
   SCREEN_WIDTH,
@@ -91,9 +93,12 @@ void setup()
     leds[i] = new Led(led_pins[i], led_ccs[i]);
   }
 
-  midi_message.setButtonsAndLeds(buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS);
-  sysex_message.setScreen(&screen);
-  song_selector.setScreenButtonsAndLeds(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS);
+  midi_message.init(buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS);
+  sysex_message.init(&screen);
+  song_selector.init(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS);
+  settings.init(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS);
+  tuner.init(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS);
+  my_clock.init(&screen);
 
   usbMIDI.setHandleControlChange(receiveMidiMessage);
   usbMIDI.setHandleSystemExclusive(receiveSysEx);
@@ -192,7 +197,6 @@ int getDatetime(char* message)
 
 void settingsMode()
 {
-  Settings settings(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS);
   settings.startSettingsMode();
   settings.settingsMode();
   settings.exitSettingsMode();
@@ -225,7 +229,6 @@ void exitSongSelectorMode()
 
 void tunerMode()
 {
-  Tuner tuner(&screen, buttons, NUMBER_OF_BUTTONS, leds, NUMBER_OF_LEDS, tuner_midi_channel);
   tuner.startTunerMode();
   tuner.tunerMode();
   tuner.exitTunerMode();
@@ -240,9 +243,8 @@ void exitTunerMode()
 
 void showClock(uint8_t wait_seconds)
 {
-  Clock clock(&screen, buttons, NUMBER_OF_BUTTONS);
-  clock.startClockMode();
-  clock.clockMode(wait_seconds);
+  my_clock.startClockMode();
+  my_clock.clockMode(wait_seconds);
 }
 
 void exitClockMode()

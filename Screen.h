@@ -4,11 +4,11 @@
 #include <Arduino.h>
 #include <string>
 
-#include "SongList.h"
-
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1351.h>
 #include <SPI.h>
+
+#include "SongList.h"
 
 #include <Fonts/MyFonts/Roboto_Condensed_24.h>
 #include <Fonts/MyFonts/Roboto_Condensed_Bold_12.h>

@@ -2,6 +2,7 @@
 #define TUNER_H
 
 #include <Arduino.h>
+
 #include "Screen.h"
 #include "Button.h"
 #include "Led.h"
@@ -9,18 +10,19 @@
 class Tuner
 {
   public:
-    Tuner(Screen *screen, Button **buttons, const uint8_t number_of_buttons, Led **leds, const uint8_t number_of_leds, const uint8_t midi_channel);
+    Tuner();
+    void init(Screen *screen, Button **buttons, uint8_t number_of_buttons, Led **leds, uint8_t number_of_leds);
     void startTunerMode();
     void tunerMode();
     void exitTunerMode();
   private:
-    Screen *_screen;
-    Button **_buttons;
-    Led    **_leds;
-    const uint8_t _number_of_buttons;
-    const uint8_t _number_of_leds;
-    const uint8_t _midi_channel;
+    Screen *screen;
+    Button **buttons;
+    Led    **leds;
+    uint8_t number_of_buttons;
+    uint8_t number_of_leds;
 
+    const uint8_t MIDI_CHANNEL = 3;
     const char *NOTES[12] = {"C","Db","D","Eb","E","F","F#","G","Ab","A","Bb","B"};
     const int LED_FLASHING_ON  = 500;
     const int LED_FLASHING_OFF = 500;

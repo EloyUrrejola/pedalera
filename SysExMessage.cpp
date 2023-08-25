@@ -4,7 +4,7 @@ SysExMessage::SysExMessage()
 {
 }
 
-void SysExMessage::setScreen(Screen *screen)
+void SysExMessage::init(Screen *screen)
 {
   this->screen = screen;
 }
@@ -191,7 +191,7 @@ void SysExMessage::getChordFromMessage(char* message, char* chord)
 void SysExMessage::getDatetime(char* message)
 {
   int current_time = getDatetimeFromMessage(message);
-  Clock::setDatetime(current_time);
+  MyClock::setDatetime(current_time);
 }
 
 int SysExMessage::getDatetimeFromMessage(char* message)

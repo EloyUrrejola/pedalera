@@ -4,7 +4,7 @@ SongSelector::SongSelector()
 {
 }
 
-void SongSelector::setScreenButtonsAndLeds(Screen *screen, Button **buttons, uint8_t number_of_buttons, Led **leds, uint8_t number_of_leds)
+void SongSelector::init(Screen *screen, Button **buttons, uint8_t number_of_buttons, Led **leds, uint8_t number_of_leds)
 {
   this->screen = screen;
   this->buttons = buttons;

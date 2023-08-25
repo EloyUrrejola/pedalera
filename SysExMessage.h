@@ -5,7 +5,7 @@
 #include <sstream>
 #include <string>
 
-#include "Clock.h"
+#include "MyClock.h"
 #include "Screen.h"
 #include "SongList.h"
 
@@ -13,7 +13,7 @@ class SysExMessage
 {
   public:
     SysExMessage();
-    void setScreen(Screen *screen);
+    void init(Screen *screen);
     void process(uint8_t *data, unsigned int length);
     
   private:

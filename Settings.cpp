@@ -15,12 +15,17 @@ uint8_t Settings::_menu_option_values[NUMBER_OF_MENU_OPTIONS] = {Led::getLedInte
 uint8_t Settings::_audio_values[5] = {0,0,10,0,10};
 uint8_t* Settings::_submenu_option_values[NUMBER_OF_MENU_OPTIONS] = {nullptr, _audio_values};
 
-Settings::Settings(Screen *screen, Button **buttons, const uint8_t number_of_buttons, Led **leds, const uint8_t number_of_leds)
-    : _number_of_buttons(number_of_buttons), _number_of_leds(number_of_leds)
+Settings::Settings()
 {
-  _screen = screen;
-  _buttons = buttons;
-  _leds = leds;
+}
+
+void Settings::init(Screen *screen, Button **buttons, const uint8_t number_of_buttons, Led **leds, const uint8_t number_of_leds)
+{
+  this->screen = screen;
+  this->buttons = buttons;
+  this->number_of_buttons = number_of_buttons;
+  this->leds = leds;
+  this->number_of_leds = number_of_leds;
 }
 
 void Settings::setSettingValue(uint8_t cc, uint8_t value)
@@ -42,8 +47,8 @@ void Settings::setSettingValue(uint8_t cc, uint8_t value)
 
 void Settings::startSettingsMode()
 {
-  _screen->clean();
-  _screen->writeSettingsTitle(settings_title);
+  screen->clean();
+  screen->writeSettingsTitle(settings_title);
   startFlashingLeds();
 }
 
@@ -63,7 +68,7 @@ void Settings::settingsMode()
   while (settings_mode) {
     updateFlashingLeds();
     for (uint8_t i = 0; i < _number_of_setting_buttons; i++) {
-      uint8_t action = _buttons[_buttons_index[i]]->settingsChanged();
+      uint8_t action = buttons[_buttons_index[i]]->settingsChanged();
       changeOption(action, menu_options, number_of_options, selected_option, option_values, max_values);
       if (action == _select) {
         if (level == 1 && SUBMENUS[selected_option] != NULL) {
@@ -111,8 +116,8 @@ bool Settings::isMenuOptionChange(uint8_t action, uint8_t number_of_options, uin
 
 void Settings::selectSubmenu(char **&menu_options, uint8_t &number_of_options, uint8_t &selected_option, uint8_t *&option_values, uint8_t *&min_values, uint8_t *&max_values, uint8_t *&option_ccs)
 {
-  _screen->clean();
-  _screen->writeSettingsTitle(menu_options[selected_option]);
+  screen->clean();
+  screen->writeSettingsTitle(menu_options[selected_option]);
   menu_options = (char**)SUBMENUS[selected_option];
   option_values = _submenu_option_values[selected_option];
   min_values = (uint8_t*)_submenu_min_options[selected_option];
@@ -132,7 +137,7 @@ void Settings::editOption(char **menu_options, uint8_t number_of_options, uint8_
   while (options_mode) {
     updateFlashingLeds();
     for (uint8_t i = 0; i < _number_of_setting_buttons; i++) {
-      uint8_t action = _buttons[_buttons_index[i]]->settingsChanged();
+      uint8_t action = buttons[_buttons_index[i]]->settingsChanged();
       if (isValueChange(action, selected_option, option_value, min_value, max_value)) {
         if (action == _up) {
           option_value++;
@@ -188,8 +193,8 @@ void Settings::exitOption(uint8_t action, char **&menu_options, uint8_t &number_
       option_ccs = (uint8_t*)_menu_option_ccs;
       selected_option = 0;
       level--;
-      _screen->clean();
-      _screen->writeSettingsTitle(settings_title);
+      screen->clean();
+      screen->writeSettingsTitle(settings_title);
       showMenuOptions(menu_options, number_of_options, selected_option, option_values, max_values);
     } else {
       settings_mode = false;
@@ -208,14 +213,14 @@ bool Settings::isValueChange(uint8_t action, uint8_t selected_option, uint8_t op
 void Settings::startFlashingLeds()
 {
   for (uint8_t i = 0; i < _number_of_leds_flashing; i++) {
-    _leds[_leds_index[i]]->flash(LED_FLASHING_ON, LED_FLASHING_OFF, -1);
+    leds[_leds_index[i]]->flash(LED_FLASHING_ON, LED_FLASHING_OFF, -1);
   }
 }
 
 void Settings::updateFlashingLeds()
 {
   for (uint8_t i = 0; i < _number_of_leds_flashing; i++) {
-    _leds[_leds_index[i]]->flashUpdate();
+    leds[_leds_index[i]]->flashUpdate();
   }
 }
 
@@ -223,7 +228,7 @@ void Settings::showMenuOptions(char **menu_options, uint8_t number_of_options, u
 {
   bool options_with_values[number_of_options];
   getOptionsWithValues(max_values, number_of_options, options_with_values);
-  _screen->showSettingOptions(menu_options, number_of_options, selected_option, option_values, options_with_values);
+  screen->showSettingOptions(menu_options, number_of_options, selected_option, option_values, options_with_values);
 }
 
 void Settings::getOptionsWithValues(uint8_t *max_values, uint8_t number_of_options, bool *options_with_values)
@@ -235,12 +240,12 @@ void Settings::getOptionsWithValues(uint8_t *max_values, uint8_t number_of_optio
 
 void Settings::showMenuOptionEdition(char **menu_options, uint8_t number_of_options, uint8_t selected_option, uint8_t option_value)
 {
-  _screen->showSettingOptionEdition(menu_options, number_of_options, selected_option, option_value);
+  screen->showSettingOptionEdition(menu_options, number_of_options, selected_option, option_value);
 }
 
 void Settings::exitSettingsMode()
 {
   for (uint8_t i = 0; i < _number_of_leds_flashing; i++) {
-    _leds[_leds_index[i]]->off();
+    leds[_leds_index[i]]->off();
   }
 }

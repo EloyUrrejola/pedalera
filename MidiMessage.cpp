@@ -4,7 +4,7 @@ MidiMessage::MidiMessage()
 {
 }
 
-void MidiMessage::setButtonsAndLeds(Button* buttons[], uint8_t number_of_buttons, Led* leds[], uint8_t number_of_leds)
+void MidiMessage::init(Button* buttons[], uint8_t number_of_buttons, Led* leds[], uint8_t number_of_leds)
 {
   this->buttons = buttons;
   this->number_of_buttons = number_of_buttons;
