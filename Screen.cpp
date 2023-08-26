@@ -184,20 +184,54 @@ int16_t Screen::getAlignRightX(uint16_t width)
   return align_right_x > 0 ? align_right_x : 0;
 }
 
-void Screen::writeSongList(const char ** songs, int selected_song_index, uint8_t number_of_songs)
+void Screen::writeSongList(const char ** songs, int selected_song_index, uint8_t number_of_songs, int direction, bool slide, bool move)
 {
-  clean();
+  if (slide) {
+    doSlide(songs, selected_song_index, number_of_songs, direction);
+  } else {
+    if (direction == INIT || move) {
+      clean();
+    }
+    writeSongs(songs, selected_song_index, number_of_songs, 0);
+    if (!move) {
+      delay(TRANSITION_ADJUSTMENT_DELAY);
+    }
+  }
+}
+
+void Screen::doSlide(const char ** songs, int selected_song_index, uint8_t number_of_songs, int direction)
+{
+  if (direction == DOWN) {
+    for (int y = -7; y > settings_song_name_height * (-1); y = y - 7) {
+      clean();
+      writeSongs(songs, selected_song_index + 1, number_of_songs, y);
+    }
+    clean();
+    writeSongs(songs + 1, selected_song_index, number_of_songs - 1, 0);
+  }
+  if (direction == UP) {
+    for (int y = settings_song_name_height* (-1) + 7; y < 0; y = y + 7) {
+      clean();
+      writeSongs(songs, selected_song_index, number_of_songs, y);
+    }
+    clean();
+    writeSongs(songs, selected_song_index, number_of_songs - 1, 0);
+  }
+}
+
+void Screen::writeSongs(const char ** songs, int selected_song_index, uint8_t number_of_songs, int ypos)
+{
+  screen->setFont(settings_song_name_font);
+  screen->setTextSize(settings_song_name_size);
+  screen->setTextWrap(false);
   for (uint8_t i = 0; i < number_of_songs; i ++) {
-    screen->setFont(settings_song_name_font);
-    screen->setTextSize(settings_song_name_size);
-    screen->setTextWrap(false);
     int16_t centered_x = getCenteredXFromText(songs[i]);
     if (i == selected_song_index) {
       screen->setTextColor(settings_song_name_color_selected);
     } else {
       screen->setTextColor(settings_song_name_color);
     }
-    screen->setCursor(centered_x, settings_song_name_height * (i + 1));
+    screen->setCursor(centered_x, settings_song_name_height * (i + 1) + ypos);
     screen->print(songs[i]);
   }
 }
@@ -270,12 +304,3 @@ void Screen::showClock(int hours, int minutes, int seconds, int day, int month, 
   date_txt[10] = 0;
   screen->print(date_txt);
 }
-
-
-
-
-
-
-
-
-

@@ -32,12 +32,14 @@ class SongSelector
     const uint8_t _pg_up = 2;
     const uint8_t _pd_dn = 3;
     const uint8_t _select = 6;
+    const int INIT = 0;
     const int UP = -1;
     const int DOWN = 1;
 
     uint8_t _temp_song_index;
     uint8_t _current_song_index;
     std::string* _song_list;
+    uint8_t last_first_song = 0;
 
     void showSongSelectorPanel(uint8_t song_index, int direction);
     void getRangeSongs(uint8_t first_song, uint8_t number_of_visible_songs, const char** songs);

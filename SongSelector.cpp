@@ -21,7 +21,7 @@ void SongSelector::startSongSelectorMode()
   for (uint8_t i = 0; i < 4; i++) {
     leds[leds_index[i]]->flash(LED_FLASHING_ON, LED_FLASHING_OFF, -1);
   }
-  showSongSelectorPanel(_temp_song_index, DOWN);
+  showSongSelectorPanel(_temp_song_index, INIT);
 }
 
 void SongSelector::songSelectorMode()
@@ -70,22 +70,39 @@ void SongSelector::showSongSelectorPanel(uint8_t song_index, int direction)
   uint8_t max_number_of_visible_songs = 6;
   uint8_t number_of_songs = SongList::getNumberOfSongs();
   uint8_t number_of_visible_songs = (number_of_songs < max_number_of_visible_songs) ? number_of_songs : max_number_of_visible_songs;
-  const char* visible_songs[number_of_visible_songs];
+  bool slide = false;
 
   if (number_of_songs < max_number_of_visible_songs) {
+    number_of_visible_songs = number_of_songs;
     first_song = 0;
     selected_song = song_index;
   } else {
     if (direction == UP) {
-      if (song_index > 4) {
+      if (song_index > 3) {
         first_song = song_index - 4;
         selected_song = song_index - first_song;
+        if (song_index < number_of_songs - 2) {
+          slide = true;
+        }
       } else {
         first_song = 0;
         selected_song = song_index;
       }
     }
     if (direction == DOWN) {
+      uint8_t last_song = number_of_songs - 1;
+      if (song_index > last_song - 4) {
+        first_song = last_song - 5;
+        selected_song = 5 - last_song + song_index;
+      } else {
+        if (song_index > 1) {
+          slide = true;
+        }
+        first_song = song_index - 1;
+        selected_song = 1;
+      }
+    }
+    if (direction == INIT) {
       uint8_t last_song = number_of_songs - 1;
       if (song_index > last_song - 4) {
         first_song = last_song - 5;
@@ -101,8 +118,21 @@ void SongSelector::showSongSelectorPanel(uint8_t song_index, int direction)
       }
     }
   }
+
+  const char* visible_songs[number_of_visible_songs];
+  bool move = true;
+  if (first_song == last_first_song) {
+    move = false;
+  }
+  last_first_song = first_song;
+  if (slide) {
+    number_of_visible_songs ++;
+    if (direction == DOWN) {
+      first_song--;
+    }
+  }
   getRangeSongs(first_song, number_of_visible_songs, visible_songs);
-  screen->writeSongList(visible_songs, selected_song, number_of_visible_songs);
+  screen->writeSongList(visible_songs, selected_song, number_of_visible_songs, direction, slide, move);
 }
 
 void SongSelector::getRangeSongs(uint8_t first_song, uint8_t number_of_visible_songs, const char** visible_songs)
