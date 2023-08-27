@@ -184,7 +184,7 @@ int16_t Screen::getAlignRightX(uint16_t width)
   return align_right_x > 0 ? align_right_x : 0;
 }
 
-void Screen::writeSongList(const char ** songs, int selected_song_index, uint8_t number_of_songs, int direction, bool slide, bool move)
+void Screen::writeSongList(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction, bool slide, bool move)
 {
   if (slide) {
     doSlide(songs, selected_song_index, number_of_songs, direction);
@@ -194,32 +194,43 @@ void Screen::writeSongList(const char ** songs, int selected_song_index, uint8_t
     }
     writeSongs(songs, selected_song_index, number_of_songs, 0);
     if (!move) {
-      delay(TRANSITION_ADJUSTMENT_DELAY);
+      delay(SLIDE_ADJUSTMENT_DELAY);
     }
   }
 }
 
-void Screen::doSlide(const char ** songs, int selected_song_index, uint8_t number_of_songs, int direction)
+void Screen::doSlide(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction)
 {
+  int8_t start = 0;
+  int8_t end = 0;
+  uint8_t selected_index = selected_song_index;
+
   if (direction == DOWN) {
-    for (int y = -7; y > settings_song_name_height * (-1); y = y - 7) {
-      clean();
-      writeSongs(songs, selected_song_index + 1, number_of_songs, y);
-    }
-    clean();
-    writeSongs(songs + 1, selected_song_index, number_of_songs - 1, 0);
+    end = -settings_song_name_height;
+    selected_index ++;
   }
   if (direction == UP) {
-    for (int y = settings_song_name_height* (-1) + 7; y < 0; y = y + 7) {
-      clean();
-      writeSongs(songs, selected_song_index, number_of_songs, y);
-    }
-    clean();
-    writeSongs(songs, selected_song_index, number_of_songs - 1, 0);
+    start = -settings_song_name_height;
   }
+  
+  for (uint8_t step = 1; step < SLIDE_STEPS; step ++) {
+    clean();
+    float ypos = getY(start, end, step, SLIDE_STEPS);
+    writeSongs(songs, selected_index, number_of_songs, ypos);
+  }
+  clean();
+  if (direction == DOWN) {
+    songs ++;
+  }
+  writeSongs(songs, selected_song_index, number_of_songs - 1, 0);
 }
 
-void Screen::writeSongs(const char ** songs, int selected_song_index, uint8_t number_of_songs, int ypos)
+float Screen::getY(int8_t start, int8_t end, uint8_t step, float total_steps)
+{
+  return start + step * (end - start) / total_steps;
+}
+
+void Screen::writeSongs(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int ypos)
 {
   screen->setFont(settings_song_name_font);
   screen->setTextSize(settings_song_name_size);
