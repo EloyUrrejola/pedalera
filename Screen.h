@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <string>
+#include <vector>
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1351.h>
@@ -35,7 +36,6 @@ class Screen
     void showSettingOptions(char **menu, uint8_t number_of_options, uint8_t selected_option, uint8_t *option_values, bool *options_with_values);
     void showSettingOptionEdition(char **menu, uint8_t number_of_options, uint8_t selected_menu, uint8_t option_value);
     void writeSongList(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction, bool slide, bool move);
-    void doSlide(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction);
     void showNote(char *note);
     void showTuning(uint8_t tuning, uint8_t last_tuning);
     void showTuningBackground();
@@ -43,6 +43,9 @@ class Screen
     void showClock(int hours, int minutes, int seconds, int day, int month, int year);
 
   private:
+    void doSlide(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction);
+    void removeLastSongs();
+    void removeSongs(const char ** songs, uint8_t number_of_songs, int ypos);
     void writeSongs(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int ypos);
     float getY(int8_t start, int8_t end, uint8_t step, float total_steps);
     
@@ -52,7 +55,8 @@ class Screen
     
     const uint32_t TEMP_MESSAGE_DELAY = 2000;
     const uint32_t SLIDE_ADJUSTMENT_DELAY = 80;
-    const uint8_t SLIDE_STEPS = 3;
+    const uint8_t SLIDE_STEPS = 6;
+    std::vector<const char *> last_songs;
 
     const int OLED_Color_Black        = 0x0000;
     const int OLED_Color_Blue         = 0x001F;
@@ -98,7 +102,7 @@ class Screen
     const uint8_t settings_line_height = 20;
     const uint8_t settings_size  = 1;
 
-    const GFXfont *settings_song_name_font = &Open_Sans_Condensed_Bold_18;
+    const GFXfont *settings_song_name_font = &Open_Sans_Condensed_Light_18;
     //const int settings_song_name_color = 0xBDF7;
     const int settings_song_name_color = OLED_Color_Cyan;
     const int settings_song_name_color_selected = OLED_Color_Yellow;

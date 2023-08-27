@@ -186,6 +186,7 @@ int16_t Screen::getAlignRightX(uint16_t width)
 
 void Screen::writeSongList(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction, bool slide, bool move)
 {
+  screen->setTextColor(settings_song_name_color);
   if (slide) {
     doSlide(songs, selected_song_index, number_of_songs, direction);
   } else {
@@ -213,21 +214,51 @@ void Screen::doSlide(const char ** songs, uint8_t selected_song_index, uint8_t n
     start = -settings_song_name_height;
   }
   
+  float ypos = getY(start, end, 0, SLIDE_STEPS);
+
   for (uint8_t step = 1; step < SLIDE_STEPS; step ++) {
-    clean();
-    float ypos = getY(start, end, step, SLIDE_STEPS);
+    if (step == 1) {
+      removeLastSongs();
+    } else {
+      removeSongs(songs, number_of_songs, ypos);
+    }
+    ypos = getY(start, end, step, SLIDE_STEPS);
     writeSongs(songs, selected_index, number_of_songs, ypos);
   }
-  clean();
+  removeSongs(songs, number_of_songs, ypos);
   if (direction == DOWN) {
     songs ++;
   }
-  writeSongs(songs, selected_song_index, number_of_songs - 1, 0);
+  writeSongs(songs, selected_song_index, number_of_songs--, 0);
 }
 
 float Screen::getY(int8_t start, int8_t end, uint8_t step, float total_steps)
 {
   return start + step * (end - start) / total_steps;
+}
+
+void Screen::removeLastSongs()
+{
+  screen->setFont(settings_song_name_font);
+  screen->setTextSize(settings_song_name_size);
+  screen->setTextWrap(false);
+  screen->setTextColor(OLED_Color_Black);
+  for (uint8_t i = 0; i < last_songs.size(); i++) {
+    screen->setCursor(0, settings_song_name_height * (i + 1));
+    screen->print(last_songs[i]);
+  }
+}
+
+void Screen::removeSongs(const char ** songs, uint8_t number_of_songs, int ypos)
+{
+  screen->setFont(settings_song_name_font);
+  screen->setTextSize(settings_song_name_size);
+  screen->setTextWrap(false);
+  screen->setTextColor(OLED_Color_Black);
+  for (uint8_t i = 0; i < number_of_songs; i ++) {
+    screen->setCursor(0, settings_song_name_height * (i + 1) + ypos);
+    screen->print(songs[i]);
+  }
 }
 
 void Screen::writeSongs(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int ypos)
@@ -236,14 +267,18 @@ void Screen::writeSongs(const char ** songs, uint8_t selected_song_index, uint8_
   screen->setTextSize(settings_song_name_size);
   screen->setTextWrap(false);
   for (uint8_t i = 0; i < number_of_songs; i ++) {
-    int16_t centered_x = getCenteredXFromText(songs[i]);
     if (i == selected_song_index) {
       screen->setTextColor(settings_song_name_color_selected);
     } else {
       screen->setTextColor(settings_song_name_color);
     }
-    screen->setCursor(centered_x, settings_song_name_height * (i + 1) + ypos);
+    screen->setCursor(0, settings_song_name_height * (i + 1) + ypos);
     screen->print(songs[i]);
+  }
+
+  last_songs.clear();
+  for (uint8_t i = 0; i < number_of_songs; i++) {
+    last_songs.push_back(songs[i]);
   }
 }
 
