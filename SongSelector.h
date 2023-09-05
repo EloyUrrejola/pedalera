@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <string>
+#include <vector>
 
 #include "Button.h"
 #include "Led.h"
@@ -36,13 +37,13 @@ class SongSelector
     const int UP = -1;
     const int DOWN = 1;
 
-    uint8_t _temp_song_index;
-    uint8_t _current_song_index;
-    std::string* _song_list;
+    uint8_t temp_song_index;
+    uint8_t current_song_index;
+    std::vector<std::string> song_list;
     uint8_t last_first_song = 0;
 
     void showSongSelectorPanel(uint8_t song_index, int direction);
-    void getRangeSongs(uint8_t first_song, uint8_t number_of_visible_songs, const char** songs);
+    std::vector<std::string> getRangeSongs(uint8_t first_song, uint8_t number_of_visible_songs);
 };
 
 #endif

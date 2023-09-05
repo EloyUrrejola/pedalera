@@ -46,9 +46,5 @@ void MyClock::clockMode(uint8_t wait_seconds)
 void MyClock::showClock()
 {
   time_t current_time = now();
-  int last_minutes = minutes;
-  minutes = minute(current_time);
-  if (minutes != last_minutes) {
-    screen->showClock(hour(current_time), minute(current_time), second(current_time), day(current_time), month(current_time), year(current_time));
-  }
+  screen->showClock(hour(current_time), minute(current_time), second(current_time), day(current_time), month(current_time), year(current_time));
 }

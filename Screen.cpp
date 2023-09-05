@@ -15,14 +15,14 @@ void Screen::clean()
   screen->fillScreen(OLED_Color_Black);
 }
 
-void Screen::writeTempMessage(char* line1, char* line2)
+void Screen::writeTempMessage(const std::string line1, const std::string line2)
 {
   writeMessage(line1, line2);
   delay(TEMP_MESSAGE_DELAY);
   writeSongAndPart();
 }
 
-void Screen::writeMessage(char* line1, char* line2)
+void Screen::writeMessage(const std::string line1, const std::string line2)
 {
   screen->fillRect(0, 0, 128, 56, SCREEN_BG_COLOR);
 
@@ -34,25 +34,23 @@ void Screen::writeMessage(char* line1, char* line2)
 
   screen->setTextColor(message_color);
   screen->setCursor(centered_x, message_line1_y);
-  screen->print(line1);
+  screen->print(line1.c_str());
 
   centered_x = getCenteredXFromText(line2);
 
   screen->setCursor(centered_x, message_line2_y);
-  screen->print(line2);
+  screen->print(line2.c_str());
 }
 
 void Screen::writeSongAndPart()
 {
   if (SongList::getNumberOfSongs() == 0) {
-    writeMessage((char*) "No", (char*) "setlist");
+    writeMessage("No", "setlist");
     return;
   }
 
-  std::string song_string = SongList::getCurrentSong();
-  std::string part_string = SongList::getCurrentPart();
-  const char* song = song_string.c_str();
-  const char* part = part_string.c_str();
+  const std::string song = SongList::getCurrentSong();
+  const std::string part = SongList::getCurrentPart();
 
   screen->fillRect(0, 0, 128, 56, SCREEN_BG_COLOR);
 
@@ -64,7 +62,7 @@ void Screen::writeSongAndPart()
 
   screen->setTextColor(song_name_color);
   screen->setCursor(centered_x, song_name_y);
-  screen->print(song);
+  screen->print(song.c_str());
 
   screen->setFont(song_part_font);
   screen->setTextSize(song_part_size);
@@ -73,10 +71,10 @@ void Screen::writeSongAndPart()
 
   screen->setTextColor(song_part_color);
   screen->setCursor(centered_x, song_part_y);
-  screen->print(part);
+  screen->print(part.c_str());
 }
 
-void Screen::writeChord(char* chord)
+void Screen::writeChord(std::string chord)
 {
   screen->fillRect(0, 71, 128, 50, SCREEN_BG_COLOR);
 
@@ -87,7 +85,7 @@ void Screen::writeChord(char* chord)
 
   screen->setTextColor(chord_color);
   screen->setCursor(centered_x, chord_y);
-  screen->print(chord);
+  screen->print(chord.c_str());
 }
 
 void Screen::removeChord()
@@ -157,7 +155,7 @@ void Screen::showSettingOptionEdition(char **menu, uint8_t number_of_options, ui
   screen->print(str_option_value);
 }
 
-int16_t Screen::getCenteredXFromText(const char* text)
+int16_t Screen::getCenteredXFromText(const std::string text)
 {
   uint16_t width = getTextWidth(text);
   int16_t centered_x = (screen->width() / 2) - floor(width / 2);
@@ -170,11 +168,11 @@ int16_t Screen::getCenteredXFromWidth(uint16_t width)
   return centered_x > 0 ? centered_x : 0;
 }
 
-uint16_t Screen::getTextWidth(const char* text)
+uint16_t Screen::getTextWidth(const std::string text)
 {
   int16_t x, y;
   uint16_t w, h;
-  screen->getTextBounds(text, 0, 0, &x, &y, &w, &h);
+  screen->getTextBounds(text.c_str(), 0, 0, &x, &y, &w, &h);
   return w;
 }
 
@@ -184,7 +182,7 @@ int16_t Screen::getAlignRightX(uint16_t width)
   return align_right_x > 0 ? align_right_x : 0;
 }
 
-void Screen::writeSongList(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction, bool slide, bool move)
+void Screen::writeSongList(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction, bool slide, bool move)
 {
   screen->setTextColor(settings_song_name_color);
   if (slide) {
@@ -200,7 +198,7 @@ void Screen::writeSongList(const char ** songs, uint8_t selected_song_index, uin
   }
 }
 
-void Screen::doSlide(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction)
+void Screen::doSlide(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction)
 {
   int8_t start = 0;
   int8_t end = 0;
@@ -227,7 +225,7 @@ void Screen::doSlide(const char ** songs, uint8_t selected_song_index, uint8_t n
   }
   removeSongs(songs, number_of_songs, ypos);
   if (direction == DOWN) {
-    songs ++;
+    songs.erase(songs.begin());
   }
   writeSongs(songs, selected_song_index, number_of_songs--, 0);
 }
@@ -245,11 +243,11 @@ void Screen::removeLastSongs()
   screen->setTextColor(OLED_Color_Black);
   for (uint8_t i = 0; i < last_songs.size(); i++) {
     screen->setCursor(0, settings_song_name_height * (i + 1));
-    screen->print(last_songs[i]);
+    screen->print(last_songs[i].c_str());
   }
 }
 
-void Screen::removeSongs(const char ** songs, uint8_t number_of_songs, int ypos)
+void Screen::removeSongs(const std::vector<std::string> songs, uint8_t number_of_songs, int ypos)
 {
   screen->setFont(settings_song_name_font);
   screen->setTextSize(settings_song_name_size);
@@ -257,11 +255,11 @@ void Screen::removeSongs(const char ** songs, uint8_t number_of_songs, int ypos)
   screen->setTextColor(OLED_Color_Black);
   for (uint8_t i = 0; i < number_of_songs; i ++) {
     screen->setCursor(0, settings_song_name_height * (i + 1) + ypos);
-    screen->print(songs[i]);
+    screen->print(songs[i].c_str());
   }
 }
 
-void Screen::writeSongs(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int ypos)
+void Screen::writeSongs(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int ypos)
 {
   screen->setFont(settings_song_name_font);
   screen->setTextSize(settings_song_name_size);
@@ -273,7 +271,7 @@ void Screen::writeSongs(const char ** songs, uint8_t selected_song_index, uint8_
       screen->setTextColor(settings_song_name_color);
     }
     screen->setCursor(0, settings_song_name_height * (i + 1) + ypos);
-    screen->print(songs[i]);
+    screen->print(songs[i].c_str());
   }
 
   last_songs.clear();

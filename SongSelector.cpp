@@ -15,13 +15,13 @@ void SongSelector::init(Screen *screen, Button **buttons, uint8_t number_of_butt
 
 void SongSelector::startSongSelectorMode()
 {
-  _temp_song_index = SongList::getCurrentSongIndex();
-  _song_list = SongList::getSongList();
+  temp_song_index = SongList::getCurrentSongIndex();
+  song_list = SongList::getSongList();
   screen->clean();
   for (uint8_t i = 0; i < 4; i++) {
     leds[leds_index[i]]->flash(LED_FLASHING_ON, LED_FLASHING_OFF, -1);
   }
-  showSongSelectorPanel(_temp_song_index, INIT);
+  showSongSelectorPanel(temp_song_index, INIT);
 }
 
 void SongSelector::songSelectorMode()
@@ -33,23 +33,23 @@ void SongSelector::songSelectorMode()
     }
     for (uint8_t i = 0; i < number_of_buttons; i++) {
       uint8_t action = buttons[i]->settingsChanged();
-      if (action == _pg_up && _temp_song_index > 0) {
-        _temp_song_index = _temp_song_index + UP;
-        showSongSelectorPanel(_temp_song_index, UP);
+      if (action == _pg_up && temp_song_index > 0) {
+        temp_song_index = temp_song_index + UP;
+        showSongSelectorPanel(temp_song_index, UP);
       }
-      if (action == _pd_dn && _temp_song_index < SongList::getNumberOfSongs() - 1) {
-        _temp_song_index = _temp_song_index + DOWN;
-        showSongSelectorPanel(_temp_song_index, DOWN);
+      if (action == _pd_dn && temp_song_index < SongList::getNumberOfSongs() - 1) {
+        temp_song_index = temp_song_index + DOWN;
+        showSongSelectorPanel(temp_song_index, DOWN);
       }
       if (action == _cancel) {
         settings_mode = false;
       }
       if (action == _select) {
-        if (_temp_song_index != -1) {
-          _current_song_index = _temp_song_index;
-          _temp_song_index = -1;
+        if (temp_song_index != -1) {
+          current_song_index = temp_song_index;
+          temp_song_index = -1;
           settings_mode = false;
-          usbMIDI.sendProgramChange(_current_song_index, 1);
+          usbMIDI.sendProgramChange(current_song_index, 1);
         }
       }
     }
@@ -119,7 +119,6 @@ void SongSelector::showSongSelectorPanel(uint8_t song_index, int direction)
     }
   }
 
-  const char* visible_songs[number_of_visible_songs];
   bool move = true;
   if (first_song == last_first_song) {
     move = false;
@@ -131,13 +130,15 @@ void SongSelector::showSongSelectorPanel(uint8_t song_index, int direction)
       first_song--;
     }
   }
-  getRangeSongs(first_song, number_of_visible_songs, visible_songs);
+
+  std::vector<std::string> visible_songs = getRangeSongs(first_song, number_of_visible_songs);
   screen->writeSongList(visible_songs, selected_song, number_of_visible_songs, direction, slide, move);
 }
 
-void SongSelector::getRangeSongs(uint8_t first_song, uint8_t number_of_visible_songs, const char** visible_songs)
+std::vector<std::string> SongSelector::getRangeSongs(uint8_t first_song, uint8_t number_of_visible_songs)
 {
-  for (int i = 0; i < number_of_visible_songs; i++) {
-    visible_songs[i] = _song_list[first_song + i].c_str();
-  }
+  std::vector<std::string> visible_songs;
+  size_t end_index = first_song + number_of_visible_songs;
+  visible_songs.assign(song_list.begin() + first_song, song_list.begin() + end_index);
+  return visible_songs;
 }

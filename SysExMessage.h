@@ -18,25 +18,25 @@ class SysExMessage
     
   private:
     Screen *screen;
-    const char* TYPE_LIST = "list";
-    const char* TYPE_SONG = "song";
-    const char* TYPE_CHORD = "chord";
-    const char* TYPE_TIME = "time";
+    const std::string TYPE_LIST = "list";
+    const std::string TYPE_SONG = "song";
+    const std::string TYPE_CHORD = "chord";
+    const std::string TYPE_TIME = "time";
     const char TYPE_DELIMITER = ':';
     const char LIST_DELIMITER = '%';
     const char SONG_DELIMITER = '|';
 
-    void getMessage(uint8_t *data, unsigned int length, char *message);
-    void replaceTildeVowels(char *message);
-    void getMessageType(char* message, char* type);
-    void getSongListFromMessage(char *message);
-    void getSongAndPartFromMessage(char* message);
-    uint8_t getSongIndexFromMessage(char* message);
-    void getPartFromMessage(char* message, char* current_part);
-    void getChord(char* message);
-    void getChordFromMessage(char* message, char* chord);
-    void getDatetime(char* message);
-    int getDatetimeFromMessage(char* message);
+    std::string getMessage(uint8_t *data, unsigned int length);
+    void replaceTildeVowels(std::string& message);
+    std::string getMessageType(std::string message);
+    void getSongListFromMessage(std::string message);
+    void getSongAndPartFromMessage(std::string message);
+    uint8_t getSongIndexFromMessage(std::string message);
+    std::string getPartFromMessage(std::string message);
+    void getChord(std::string message);
+    std::string getChordFromMessage(std::string message);
+    void getDatetime(std::string message);
+    int getDatetimeFromMessage(std::string message);
 
     void hasNullTerminator(const char* str);
 };

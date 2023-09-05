@@ -27,15 +27,15 @@ class Screen
     Screen(Adafruit_SSD1351 *adafruit);
     void begin();
     void clean();
-    void writeTempMessage(char* line1, char* line2);
-    void writeMessage(char* line1, char* line2);
+    void writeTempMessage(const std::string line1, const std::string line2);
+    void writeMessage(const std::string line1, const std::string line2);
     void writeSongAndPart();
-    void writeChord(char* chord);
+    void writeChord(std::string chord);
     void removeChord();
     void writeSettingsTitle(char *title);
     void showSettingOptions(char **menu, uint8_t number_of_options, uint8_t selected_option, uint8_t *option_values, bool *options_with_values);
     void showSettingOptionEdition(char **menu, uint8_t number_of_options, uint8_t selected_menu, uint8_t option_value);
-    void writeSongList(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction, bool slide, bool move);
+    void writeSongList(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction, bool slide, bool move);
     void showNote(char *note);
     void showTuning(uint8_t tuning, uint8_t last_tuning);
     void showTuningBackground();
@@ -43,10 +43,10 @@ class Screen
     void showClock(int hours, int minutes, int seconds, int day, int month, int year);
 
   private:
-    void doSlide(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction);
+    void doSlide(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction);
     void removeLastSongs();
-    void removeSongs(const char ** songs, uint8_t number_of_songs, int ypos);
-    void writeSongs(const char ** songs, uint8_t selected_song_index, uint8_t number_of_songs, int ypos);
+    void removeSongs(const std::vector<std::string> songs, uint8_t number_of_songs, int ypos);
+    void writeSongs(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int ypos);
     float getY(int8_t start, int8_t end, uint8_t step, float total_steps);
     
     const int INIT = 0;
@@ -56,7 +56,7 @@ class Screen
     const uint32_t TEMP_MESSAGE_DELAY = 2000;
     const uint32_t SLIDE_ADJUSTMENT_DELAY = 80;
     const uint8_t SLIDE_STEPS = 6;
-    std::vector<const char *> last_songs;
+    std::vector<std::string> last_songs;
 
     const int OLED_Color_Black        = 0x0000;
     const int OLED_Color_Blue         = 0x001F;
@@ -125,9 +125,9 @@ class Screen
     const int clock_date_color = OLED_Color_Yellow;
 
     Adafruit_SSD1351 *screen;
-    int16_t  getCenteredXFromText(const char* text);
+    int16_t  getCenteredXFromText(const std::string text);
     int16_t  getCenteredXFromWidth(uint16_t width);
-    uint16_t getTextWidth(const char* text);
+    uint16_t getTextWidth(const std::string text);
     int16_t  getAlignRightX(uint16_t width);
 };
 
