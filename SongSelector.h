@@ -43,7 +43,6 @@ class SongSelector
     uint8_t last_first_song = 0;
 
     void showSongSelectorPanel(uint8_t song_index, int direction);
-    std::vector<std::string> getRangeSongs(uint8_t first_song, uint8_t number_of_visible_songs);
 };
 
 #endif

@@ -66,54 +66,43 @@ void SongSelector::exitSongSelectorMode()
 void SongSelector::showSongSelectorPanel(uint8_t song_index, int direction)
 {
   uint8_t first_song = 0;
-  uint8_t selected_song = 1;
   uint8_t max_number_of_visible_songs = 6;
   uint8_t number_of_songs = SongList::getNumberOfSongs();
-  uint8_t number_of_visible_songs = (number_of_songs < max_number_of_visible_songs) ? number_of_songs : max_number_of_visible_songs;
   bool slide = false;
 
   if (number_of_songs < max_number_of_visible_songs) {
-    number_of_visible_songs = number_of_songs;
     first_song = 0;
-    selected_song = song_index;
   } else {
     if (direction == UP) {
       if (song_index > 3) {
         first_song = song_index - 4;
-        selected_song = song_index - first_song;
         if (song_index < number_of_songs - 2) {
           slide = true;
         }
       } else {
         first_song = 0;
-        selected_song = song_index;
       }
     }
     if (direction == DOWN) {
       uint8_t last_song = number_of_songs - 1;
       if (song_index > last_song - 4) {
         first_song = last_song - 5;
-        selected_song = 5 - last_song + song_index;
       } else {
         if (song_index > 1) {
           slide = true;
         }
         first_song = song_index - 1;
-        selected_song = 1;
       }
     }
     if (direction == INIT) {
       uint8_t last_song = number_of_songs - 1;
       if (song_index > last_song - 4) {
         first_song = last_song - 5;
-        selected_song = 5 - last_song + song_index;
       } else {
         if (song_index > 0) {
           first_song = song_index - 1;
-          selected_song = 1;
         } else {
           first_song = song_index;
-          selected_song = 0;
         }
       }
     }
@@ -125,20 +114,9 @@ void SongSelector::showSongSelectorPanel(uint8_t song_index, int direction)
   }
   last_first_song = first_song;
   if (slide) {
-    number_of_visible_songs ++;
     if (direction == DOWN) {
-      first_song--;
     }
   }
 
-  std::vector<std::string> visible_songs = getRangeSongs(first_song, number_of_visible_songs);
-  screen->writeSongList(visible_songs, selected_song, number_of_visible_songs, direction, slide, move);
-}
-
-std::vector<std::string> SongSelector::getRangeSongs(uint8_t first_song, uint8_t number_of_visible_songs)
-{
-  std::vector<std::string> visible_songs;
-  size_t end_index = first_song + number_of_visible_songs;
-  visible_songs.assign(song_list.begin() + first_song, song_list.begin() + end_index);
-  return visible_songs;
+  screen->writeSongList(first_song, song_index, direction, slide, move);
 }

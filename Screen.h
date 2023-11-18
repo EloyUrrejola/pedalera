@@ -35,7 +35,8 @@ class Screen
     void writeSettingsTitle(char *title);
     void showSettingOptions(char **menu, uint8_t number_of_options, uint8_t selected_option, uint8_t *option_values, bool *options_with_values);
     void showSettingOptionEdition(char **menu, uint8_t number_of_options, uint8_t selected_menu, uint8_t option_value);
-    void writeSongList(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction, bool slide, bool move);
+    void writeSongList(uint8_t first_song, uint8_t song_index, int direction, bool slide, bool move);
+    //void writeSongList(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction, bool slide, bool move);
     void showNote(char *note);
     void showTuning(uint8_t tuning, uint8_t last_tuning);
     void showTuningBackground();
@@ -43,16 +44,18 @@ class Screen
     void showClock(int hours, int minutes, int seconds, int day, int month, int year);
 
   private:
-    void doSlide(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction);
+    void doSlide(const std::vector<std::string> songs, uint8_t first_song, uint8_t song_index, int direction);
+    //void doSlide(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction);
     void removeLastSongs();
-    void removeSongs(const std::vector<std::string> songs, uint8_t number_of_songs, int ypos);
-    void writeSongs(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int ypos);
+    void removeSongs(const std::vector<std::string> songs, uint8_t first_song, int ypos);
+    void writeSongs(const std::vector<std::string> songs, uint8_t first_song, uint8_t number_of_songs, uint8_t selected_index, int ypos);
     float getY(int8_t start, int8_t end, uint8_t step, float total_steps);
     
     const int INIT = 0;
     const int UP = -1;
     const int DOWN = 1;
     
+    const uint8_t VISIBLE_SONGS = 6;
     const uint32_t TEMP_MESSAGE_DELAY = 2000;
     const uint32_t SLIDE_ADJUSTMENT_DELAY = 80;
     const uint8_t SLIDE_STEPS = 6;

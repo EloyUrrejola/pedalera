@@ -182,30 +182,32 @@ int16_t Screen::getAlignRightX(uint16_t width)
   return align_right_x > 0 ? align_right_x : 0;
 }
 
-void Screen::writeSongList(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction, bool slide, bool move)
+void Screen::writeSongList(uint8_t first_song, uint8_t song_index, int direction, bool slide, bool move)
 {
+  const std::vector<std::string> songs = SongList::getSongList();
   screen->setTextColor(settings_song_name_color);
   if (slide) {
-    doSlide(songs, selected_song_index, number_of_songs, direction);
+    doSlide(songs, first_song, song_index, direction);
   } else {
     if (direction == INIT || move) {
       clean();
     }
-    writeSongs(songs, selected_song_index, number_of_songs, 0);
+    writeSongs(songs, first_song, VISIBLE_SONGS, song_index - first_song, 0);
     if (!move) {
       delay(SLIDE_ADJUSTMENT_DELAY);
     }
   }
 }
 
-void Screen::doSlide(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int direction)
+void Screen::doSlide(const std::vector<std::string> songs, uint8_t first_song, uint8_t song_index, int direction)
 {
   int8_t start = 0;
   int8_t end = 0;
-  uint8_t selected_index = selected_song_index;
+  uint8_t selected_index = song_index - first_song;
 
   if (direction == DOWN) {
     end = -settings_song_name_height;
+    first_song --;
     selected_index ++;
   }
   if (direction == UP) {
@@ -218,16 +220,17 @@ void Screen::doSlide(std::vector<std::string> songs, uint8_t selected_song_index
     if (step == 1) {
       removeLastSongs();
     } else {
-      removeSongs(songs, number_of_songs, ypos);
+      removeSongs(songs, first_song, ypos);
     }
     ypos = getY(start, end, step, SLIDE_STEPS);
-    writeSongs(songs, selected_index, number_of_songs, ypos);
+    writeSongs(songs, first_song, VISIBLE_SONGS + 1, selected_index, ypos);
   }
-  removeSongs(songs, number_of_songs, ypos);
+  removeSongs(songs, first_song, ypos);
   if (direction == DOWN) {
-    songs.erase(songs.begin());
+    first_song ++;
+    selected_index --;
   }
-  writeSongs(songs, selected_song_index, number_of_songs--, 0);
+  writeSongs(songs, first_song, VISIBLE_SONGS, selected_index, 0);
 }
 
 float Screen::getY(int8_t start, int8_t end, uint8_t step, float total_steps)
@@ -247,36 +250,36 @@ void Screen::removeLastSongs()
   }
 }
 
-void Screen::removeSongs(const std::vector<std::string> songs, uint8_t number_of_songs, int ypos)
+void Screen::removeSongs(const std::vector<std::string> songs, uint8_t first_song, int ypos)
 {
   screen->setFont(settings_song_name_font);
   screen->setTextSize(settings_song_name_size);
   screen->setTextWrap(false);
   screen->setTextColor(OLED_Color_Black);
-  for (uint8_t i = 0; i < number_of_songs; i ++) {
+  for (uint8_t i = 0; i < VISIBLE_SONGS + 1; i ++) {
     screen->setCursor(0, settings_song_name_height * (i + 1) + ypos);
-    screen->print(songs[i].c_str());
+    screen->print(songs[i + first_song].c_str());
   }
 }
 
-void Screen::writeSongs(std::vector<std::string> songs, uint8_t selected_song_index, uint8_t number_of_songs, int ypos)
+void Screen::writeSongs(const std::vector<std::string> songs, uint8_t first_song, uint8_t number_of_songs, uint8_t selected_index, int ypos)
 {
   screen->setFont(settings_song_name_font);
   screen->setTextSize(settings_song_name_size);
   screen->setTextWrap(false);
   for (uint8_t i = 0; i < number_of_songs; i ++) {
-    if (i == selected_song_index) {
+    if (i == selected_index) {
       screen->setTextColor(settings_song_name_color_selected);
     } else {
       screen->setTextColor(settings_song_name_color);
     }
     screen->setCursor(0, settings_song_name_height * (i + 1) + ypos);
-    screen->print(songs[i].c_str());
+    screen->print(songs[i + first_song].c_str());
   }
 
   last_songs.clear();
   for (uint8_t i = 0; i < number_of_songs; i++) {
-    last_songs.push_back(songs[i]);
+    last_songs.push_back(songs[i + first_song]);
   }
 }
 

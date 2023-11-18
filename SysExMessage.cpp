@@ -15,7 +15,7 @@ void SysExMessage::process(uint8_t *data, unsigned int length)
   replaceTildeVowels(message);
 
   std::string type = getMessageType(message);
-Serial.println(type.c_str());
+
   if (type == TYPE_LIST) {
     getSongListFromMessage(message);
   }
@@ -182,9 +182,7 @@ int SysExMessage::getDatetimeFromMessage(std::string message)
   size_t delimiter = message.find(TYPE_DELIMITER);
   if (delimiter != std::string::npos) {
     std::string datetime_str = message.substr(delimiter + 1);
-Serial.println(datetime_str.c_str());
     datetime = std::stoi(datetime_str);
-Serial.println(datetime);
   }
   return datetime;
 }
