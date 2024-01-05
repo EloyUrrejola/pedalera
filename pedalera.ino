@@ -35,13 +35,14 @@ const uint8_t button_momentary_ccs[]   = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0,20,
 // Tunner: tuner_mode (3)
 const uint8_t button_push_actions[]    = { 0, 0, 0, 0, 3, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 // Acciones pasado un intervalo de tiempo (300 ms)
-const uint8_t button_hold_actions[]    = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 4, 0, 0, 1, 2};
+const uint8_t button_hold_actions[]    = { 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 5, 4, 0, 0, 1, 2};
 // Botones usados para los settings
 const uint8_t settings_buttons[]       = { 0, 0, 0, 0, 7, 0, 0, 0,   0, 0, 5, 6, 3, 8, 0, 4, 1, 2};
 const uint8_t SETTINGS_ACTION = 1;
 const uint8_t SONG_SELECTOR_ACTION = 2;
 const uint8_t TUNER_ACTION = 3;
 const uint8_t CLOCK_ACTION = 4;
+const uint8_t NEXT_SONG_ACTION = 5;
 const uint8_t NUMBER_OF_BUTTONS = sizeof(button_pins) / sizeof(button_pins[0]);
 
 const uint8_t led_pins[]    = { 7, 4, 5, 6,24,25,28,29,  33,37,36,14,18,15};
@@ -136,6 +137,9 @@ void loop()
         showClock(2);
         exitClockMode();
       }
+      if (action == NEXT_SONG_ACTION) {
+        nextSong();
+      }
     }
   }
   usbMIDI.read();
@@ -182,6 +186,11 @@ void receiveSysEx(uint8_t *data, unsigned int length)
 void requestSetlist()
 {
   usbMIDI.sendControlChange(25, 127, 4);
+}
+
+void nextSong()
+{
+  usbMIDI.sendControlChange(91, 127, 1);
 }
 
 int getDatetime(char* message)
